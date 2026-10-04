@@ -1,0 +1,70 @@
+name: AppleLocalAIOnDemandSample
+options:
+  minimumXcodeGenVersion: 2.45.0
+  deploymentTarget:
+    iOS: "27.0"
+packages:
+  AppleLocalAI:
+    path: ../..
+  AppleLocalAILEAP:
+    path: ../../Backends/Sources/AppleLocalAILEAP
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    IPHONEOS_DEPLOYMENT_TARGET: "27.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    ARCHS: arm64
+    APPLE_LOCAL_AI_ON_DEMAND_TESTS: "0"
+    GGML_METAL_DEVICES: "1"
+    "GGML_METAL_DEVICES[sdk=iphonesimulator*]": "0"
+targets:
+  AppleLocalAIOnDemandSample:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.applelocalai.iosondemand
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: On-demand LLM
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+    dependencies:
+      - package: AppleLocalAI
+        product: AppleLocalAI
+      - package: AppleLocalAILEAP
+        product: AppleLocalAILEAP
+    postBuildScripts:
+      - path: ../../scripts/sign-leap-embedded.sh
+        name: Sign embedded LEAP libraries
+        basedOnDependencyAnalysis: false
+  AppleLocalAIOnDemandSampleTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.applelocalai.iosondemand.tests
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: AppleLocalAIOnDemandSample
+schemes:
+  AppleLocalAIOnDemandSample:
+    build:
+      targets:
+        AppleLocalAIOnDemandSample: all
+        AppleLocalAIOnDemandSampleTests: [test]
+    test:
+      environmentVariables:
+        APPLE_LOCAL_AI_ON_DEMAND_TESTS: $(APPLE_LOCAL_AI_ON_DEMAND_TESTS)
+        GGML_METAL_DEVICES: $(GGML_METAL_DEVICES)
+      targets:
+        - AppleLocalAIOnDemandSampleTests
+    run:
+      environmentVariables:
+        GGML_METAL_DEVICES: $(GGML_METAL_DEVICES)

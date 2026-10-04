@@ -1,0 +1,6 @@
+.build/
+.swiftpm/
+.runtime/
+.DS_Store
+__pycache__/
+*.py[cod]

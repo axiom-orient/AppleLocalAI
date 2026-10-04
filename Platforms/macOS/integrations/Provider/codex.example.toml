@@ -1,0 +1,15 @@
+# Merge into user-level ~/.codex/config.toml; do not overwrite existing settings.
+# Candidate integration, NOT a certification of a particular Codex release.
+# Current custom/grammar tools remain outside the provider's function-only API.
+model_provider = "applelocalai"
+model = "apple-local"
+model_reasoning_effort = "none"
+model_reasoning_summary = "none"
+model_supports_reasoning_summaries = false
+web_search = "disabled"
+
+[model_providers.applelocalai]
+name = "AppleLocalAI / Foundation Models"
+base_url = "http://127.0.0.1:8765/v1"
+env_key = "APPLELOCALAI_TOKEN"
+wire_api = "responses"

@@ -1,0 +1,30 @@
+AppleLocalAI includes repository-owned compatibility code derived from Google LLC's
+LiteRT-LM Apple Foundation Models adapter and related Swift support in:
+
+  Backends/Sources/AppleLocalAILocalModels/CGImagePNG.swift
+  Backends/Sources/AppleLocalAILocalModels/LiteRTEngineCache.swift
+  Backends/Sources/AppleLocalAILocalModels/LiteRTErrors.swift
+  Backends/Sources/AppleLocalAILocalModels/LiteRTLanguageModel.swift
+  Backends/Sources/AppleLocalAILocalModels/LiteRTLMExecutor.swift
+  Backends/Sources/AppleLocalAILocalModels/LiteRTSampler.swift
+  Backends/Sources/AppleLocalAILocalModels/LiteRTSupport.swift
+  Backends/Sources/AppleLocalAILocalModels/LiteRTTranscriptPlan.swift
+
+The compatibility implementation descends from Google LLC's LiteRT-LM project
+(https://github.com/google-ai-edge/LiteRT-LM). The source transfer records commit
+091d17598f5107df4e9543eb3b46b4f8d35264bc as the copied-source baseline; this
+repository currently resolves the LiteRT-LM runtime dependency at release v0.17.1.
+The derived files retain their upstream copyright and Apache-2.0 headers and have
+subsequent AppleLocalAI changes for fail-closed transcript/schema handling,
+cancellation, resource ownership, and token-usage semantics.
+
+Parts of the upstream Swift implementation acknowledge @john-rocky and
+https://github.com/john-rocky/swift-litert-lm/tree/main. Those acknowledgements
+are retained in the affected source headers.
+
+A copy of the Apache License, Version 2.0 is distributed at:
+
+  LICENSES/Apache-2.0-LiteRT-LM.txt
+
+The LiteRT-LM core runtime and prebuilt artifacts remain external SwiftPM
+dependencies and retain their upstream licenses and attribution.

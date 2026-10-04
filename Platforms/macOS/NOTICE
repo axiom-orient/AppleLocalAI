@@ -1,0 +1,8 @@
+AppleLocalAI uses the LiteRT-LM core runtime as an external SwiftPM dependency.
+The macOS package does not contain a copied LiteRT-LM Foundation Models adapter
+or executor; the canonical adapter and model inspection are provided by the
+AppleLocalAI iOS dependency declared in Package.swift.
+
+The local CGImagePNG.swift helper retains the attribution in its source header.
+The external LiteRT-LM runtime and its prebuilt artifacts retain their upstream
+Apache License, Version 2.0 and attribution.

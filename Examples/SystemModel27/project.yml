@@ -1,0 +1,56 @@
+name: AppleLocalAISystem27Sample
+options:
+  minimumXcodeGenVersion: 2.45.0
+  xcodeVersion: "27.0"
+  deploymentTarget:
+    iOS: "27.0"
+packages:
+  AppleLocalAI:
+    path: ../..
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    IPHONEOS_DEPLOYMENT_TARGET: "27.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    ARCHS: arm64
+    APPLE_LOCAL_AI_SYSTEM27_INFERENCE_TESTS: "0"
+targets:
+  AppleLocalAISystem27Sample:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.applelocalai.systemmodel27
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Apple System Model 27
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - package: AppleLocalAI
+        product: AppleLocalAI
+  AppleLocalAISystem27SampleTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.applelocalai.systemmodel27.tests
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: AppleLocalAISystem27Sample
+schemes:
+  AppleLocalAISystem27Sample:
+    build:
+      targets:
+        AppleLocalAISystem27Sample: all
+        AppleLocalAISystem27SampleTests: [test]
+    test:
+      environmentVariables:
+        APPLE_LOCAL_AI_SYSTEM27_INFERENCE_TESTS: $(APPLE_LOCAL_AI_SYSTEM27_INFERENCE_TESTS)
+      targets:
+        - AppleLocalAISystem27SampleTests

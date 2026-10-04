@@ -1,0 +1,9 @@
+{
+  "port": 8765,
+  "tokenEnvironment": "APPLELOCALAI_TOKEN",
+  "allowPrivateCloud": false,
+  "allowExternalNetwork": false,
+  "profiles": [
+    { "id": "apple-local", "backend": "system", "reasoning": "none" }
+  ]
+}

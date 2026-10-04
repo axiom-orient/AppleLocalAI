@@ -1,0 +1,55 @@
+name: AppleLocalAISystemSample
+options:
+  minimumXcodeGenVersion: 2.45.0
+  deploymentTarget:
+    iOS: "26.0"
+packages:
+  AppleLocalAISystem:
+    path: ../../Compatibility/AppleLocalAISystem
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    ARCHS: arm64
+    APPLE_LOCAL_AI_SYSTEM_INFERENCE_TESTS: "0"
+targets:
+  AppleLocalAISystemSample:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.applelocalai.systemmodel
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Apple System Model
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - package: AppleLocalAISystem
+        product: AppleLocalAISystem
+  AppleLocalAISystemSampleTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.applelocalai.systemmodel.tests
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: AppleLocalAISystemSample
+schemes:
+  AppleLocalAISystemSample:
+    build:
+      targets:
+        AppleLocalAISystemSample: all
+        AppleLocalAISystemSampleTests: [test]
+    test:
+      environmentVariables:
+        APPLE_LOCAL_AI_SYSTEM_INFERENCE_TESTS: $(APPLE_LOCAL_AI_SYSTEM_INFERENCE_TESTS)
+      targets:
+        - AppleLocalAISystemSampleTests
