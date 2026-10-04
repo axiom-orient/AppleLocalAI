@@ -12,11 +12,11 @@ public enum HistoryWindow {
   public static func retainedRange(in entries: [HistoryEntryKind], limit: Int) -> Range<Int> {
     var start = max(0, entries.count - max(1, limit))
     if start < entries.count {
-      switch entries[start] {
-      case .toolCalls, .toolOutput:
+      // A response between tool cycles can also be the first retained entry.
+      // Only inspect this turn: tools after the next prompt have their owner.
+      let nextPrompt = entries[start...].firstIndex(where: { $0 == .prompt }) ?? entries.count
+      if entries[start..<nextPrompt].contains(where: { $0 == .toolCalls || $0 == .toolOutput }) {
         start = entries[...start].lastIndex(where: { $0 == .prompt }) ?? 0
-      case .prompt, .other:
-        break
       }
     }
     return start..<entries.count

@@ -40,10 +40,14 @@ load/use/drain 수명을 소유하고 session/history authority를 갖지 않는
 LEAP text runtime은 collecting/completed와 fragment/optional usage를 한 lifecycle로
 관리한다. Artifact store, text runtime, audio runtime은 서로 다른 effect boundary이며
 Foundation Models transcript를 복제하지 않는다.
+Staging cleanup이 실패하면 원래 오류와 cleanup 오류를 함께 보존한다.
+일반 디렉터리는 삭제하지 않으며 symbolic link는 링크 자체만 제거한다.
 
 `AppleLocalAIHistoryPolicy.project`는 native replay와 host context 계산이 공유하는 순수
 projection이다. reasoning 제외, optional empty trigger 제거, recent-entry와 initiating
 prompt/tool round-trip 보존을 한 구현에 둔다. 실제 transcript는 수정하지 않는다.
+반복 tool cycle 사이의 response도 같은 turn에 속한다. Window 경계 이후의 tool entry는
+다음 prompt 이전까지만 검사하므로 별개의 새 turn 때문에 이전 turn을 추가 보존하지 않는다.
 
 ## Shared module ownership
 
@@ -96,6 +100,8 @@ guard; native compilation and inference remain separate evidence.
 major, records the selected Xcode/SDK/host, and uses separate build/result directories.
 Only a passed, explicitly enabled native lifecycle test yields `INFERENCE_PASS`;
 build success, missing tests and skips do not qualify a model.
+The runner claims a new external directory exclusively and fingerprints the selected
+consumer's actual source and project configuration. It never overwrites prior evidence.
 
 ## macOS module ownership
 

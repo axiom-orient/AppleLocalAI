@@ -152,12 +152,21 @@ enum LEAPArtifactStore {
           total: file.byteCount,
           file: file.fileName)
         paths.append(destination)
-      } catch is CancellationError {
-        removeManagedArtifact(at: staging)
-        throw CancellationError()
       } catch {
-        removeManagedArtifact(at: staging)
-        throw error
+        let primary = error
+        do {
+          try removeManagedArtifact(at: staging)
+        } catch {
+          throw NSError(
+            domain: "AppleLocalAI.LEAPArtifactStore", code: 1,
+            userInfo: [
+              NSLocalizedDescriptionKey:
+                "The partial model could not be removed after \(primary.localizedDescription): \(error.localizedDescription)",
+              NSUnderlyingErrorKey: primary,
+              NSMultipleUnderlyingErrorsKey: [primary as NSError, error as NSError],
+            ])
+        }
+        throw primary
       }
     }
     try Task.checkCancellation()
@@ -261,9 +270,24 @@ enum LEAPArtifactStore {
     return type == .typeRegular || type == .typeSymbolicLink
   }
 
-  private static func removeManagedArtifact(at url: URL) {
-    guard isRemovableArtifact(at: url) else { return }
-    try? FileManager.default.removeItem(at: url)
+  private static func removeManagedArtifact(at url: URL) throws {
+    let attributes: [FileAttributeKey: Any]
+    do {
+      attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+    } catch {
+      let failure = error as NSError
+      if failure.domain == NSCocoaErrorDomain,
+        failure.code == CocoaError.fileNoSuchFile.rawValue
+          || failure.code == CocoaError.fileReadNoSuchFile.rawValue
+      {
+        return
+      }
+      throw error
+    }
+    guard let type = attributes[.type] as? FileAttributeType,
+      type == .typeRegular || type == .typeSymbolicLink
+    else { return }
+    try FileManager.default.removeItem(at: url)
   }
 
   private static func ensureRegularFile(at url: URL, expected: LEAPArtifactFile) throws {

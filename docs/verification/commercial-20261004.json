@@ -1,0 +1,393 @@
+{
+  "date": "2026-10-04",
+  "baseRevision": "987845d2db79e5b3eaa2f2947b71dfe4655dc748",
+  "verdict": "NOT_READY_FOR_FULL_COMMERCIAL_RELEASE: iOS26.5 native inference fails; iOS27 native revertTranscript cancellation/reuse crashes; supported physical iPhone not qualified.",
+  "environment": {
+    "macOS": "27.0.1 (26A434)",
+    "Xcode": "27.0 (27A266a)",
+    "Swift": "6.4"
+  },
+  "rootNative": {
+    "checks": [
+      {
+        "details": "Hello!",
+        "name": "respond"
+      },
+      {
+        "details": "7 snapshots; An apple is a common fruit.",
+        "name": "stream"
+      },
+      {
+        "details": "Cancelled while SDK phase was running; idle after task settlement",
+        "name": "cancel-and-settle"
+      },
+      {
+        "details": "Red is a common color.",
+        "name": "reuse-after-cancel"
+      },
+      {
+        "details": "Apple",
+        "name": "structured-generation"
+      },
+      {
+        "details": "History preserved across profile changes; explicit reset starts a new conversation",
+        "name": "profile-and-reset"
+      },
+      {
+        "details": "1 actual native tool callbacks",
+        "name": "native-tool-execution"
+      },
+      {
+        "details": "Native tool call returned without executing its effect",
+        "name": "native-tool-handoff"
+      }
+    ],
+    "operatingSystem": "Version 27.0.1 (Build 26A434)",
+    "outcome": "PASS",
+    "provider": "Root AppleLocalAISession / Apple SystemLanguageModel.default",
+    "runID": "65D7C3E5-1A88-4C70-9AC5-F52EE2ECE8CE"
+  },
+  "ios26": {
+    "device": "iPhone 17 Pro Max",
+    "udid": "B462783D-86CD-46ED-8C12-E147F20A65C1",
+    "runtime": "26.5",
+    "outcome": "FAIL",
+    "exitCode": 65,
+    "cause": "instruct_300m.safety promptTemplateNotFound / ModelManager1001 / SCA15",
+    "finalRootCause": "UNKNOWN"
+  },
+  "ios27": {
+    "device": "iPhone 18 Pro",
+    "udid": "6F7E3B30-7343-4290-8F67-399ED0A20EBC",
+    "runtime": "27.0",
+    "policy": "preserveTranscript",
+    "outcome": "INFERENCE_PASS",
+    "exitCode": 0,
+    "testsPassed": 2,
+    "initialAvailability": "UNAVAILABLE; public availability then changed to available before a new actual inference run"
+  },
+  "ios27RevertTranscript": {
+    "policy": "explicit revertTranscript (SDK default)",
+    "outcome": "CRASH",
+    "rawReportOutcome": "RUNNING at process termination",
+    "completedChecks": [
+      {
+        "details": "Hello!",
+        "name": "respond"
+      },
+      {
+        "details": "8 native snapshots; final response/history consistent; An apple is a common fruit.",
+        "name": "stream"
+      },
+      {
+        "details": "Cancelled 150 ms after SDK running; cancellation observed; idle after task settlement",
+        "name": "cancel-and-settle"
+      }
+    ],
+    "failure": "Swift/Range.swift:761 Fatal error: Range requires lowerBound <= upperBound during reuse after cancellation",
+    "detailedBacktrace": "NOT_CAPTURED: CrashReporter rate-limited"
+  },
+  "onDemandLEAP": {
+    "deviceUDID": "6F7E3B30-7343-4290-8F67-399ED0A20EBC",
+    "outcome": "PASS",
+    "testsPassed": 2,
+    "report": {
+      "checks": [
+        {
+          "details": "430fbec5b1b355e9bb12cd0638c9f2a8f21fedd6eafb4103e42c7e88887daa73",
+          "name": "verified-download-and-load"
+        },
+        {
+          "details": "Hello!",
+          "name": "respond"
+        },
+        {
+          "details": "2 snapshots; One common fruit is apples.",
+          "name": "stream"
+        },
+        {
+          "details": "150 ms timer while generation running; cancellation observed; session idle",
+          "name": "cancel-and-settle"
+        },
+        {
+          "details": "One common color is red.",
+          "name": "reuse-after-cancel"
+        },
+        {
+          "details": "Profile cleared; unloaded runtime rejects prewarm",
+          "name": "unload"
+        },
+        {
+          "details": "\"Goodbye!\"",
+          "name": "cache-reload-and-respond"
+        },
+        {
+          "details": "Model file retained",
+          "name": "final-unload"
+        }
+      ],
+      "model": "LiquidAI/LFM2.5-230M-Q4_0",
+      "modelRevision": "cdf97bd8205908758f44aec508d68ac1aef98f5c",
+      "modelSHA256": "430fbec5b1b355e9bb12cd0638c9f2a8f21fedd6eafb4103e42c7e88887daa73",
+      "nativeSDK": "0.10.13-SNAPSHOT",
+      "operatingSystem": "Version 27.0 (Build 24A434)",
+      "outcome": "PASS",
+      "runID": "2229F597-03E2-4CDA-83F5-23AA6D53DC06",
+      "startedAt": 812794869.620143
+    },
+    "scope": "Real LEAP CPU inference through Apple LanguageModelSession; NOT Apple Intelligence evidence"
+  },
+  "checks": {
+    "rootUnit": "33 reported tests; native qualification separately recorded above",
+    "coreUnit": "19 reported tests",
+    "localModelsUnit": "47 reported tests",
+    "LEAPUnit": "50 reported tests; native text/audio opt-ins skipped",
+    "portableSubset": "62/11/16/2/27/19 reported tests; exact source subset only",
+    "runnerContractTests": 3,
+    "platformCompilerGuards": 28,
+    "architecture": "PASS",
+    "macOSFullScript": "PASS / CHECK_EXIT_CODE=0; strict formatting, test suites, three Release products, Provider config/Console status/plists; opt-in model tests skipped"
+  },
+  "notQualified": [
+    "supported physical iPhone26/27",
+    "iOS26 SDK26 compilation",
+    "PCC entitlement/consent/quota",
+    "all CoreAI/MLX/LiteRT model assets",
+    "physical iPhone LEAP Metal/performance",
+    "signed/notarized distribution",
+    "long-duration resource stability"
+  ],
+  "localArtifactRoot": "<LOCAL_HOME>/Library/Developer/AppleLocalAIVerification/commercial-20261004",
+  "sourceSHA256": {
+    "Backends/Package.resolved": "1e3b6587884f9eac3be8f2a558ee3d1cc24a9ae177d7e2e5d0cd3314b218829d",
+    "Backends/Package.swift": "87612ae8ae547834856529bc910773613b9d3d43bdf3e59c3c479e6e76074910",
+    "Backends/Sources/AppleLocalAILEAP/AppleLocalAILEAP.swift": "e0ffcc053b93ba648bedd215d8e6b0c1408265ed7b3829586174f0df9e332179",
+    "Backends/Sources/AppleLocalAILEAP/AppleLocalAILEAPErrors.swift": "3f4337e2a0cf0acd6f3c48696bb305bb2c304b37364939768f6dbb8d12b8dfb9",
+    "Backends/Sources/AppleLocalAILEAP/LEAPArtifactStore.swift": "ae477a82d6b5221aa08938174b73584548edf08e2af14c32e0f61edd204f4e42",
+    "Backends/Sources/AppleLocalAILEAP/LEAPAudio.swift": "273ea2e5b3b938ce0e37f02e9564a57c661dec1e1e602a083ff001de5e4fd4f0",
+    "Backends/Sources/AppleLocalAILEAP/LEAPExecutor.swift": "01e752031d7d104794d7e588119ede10560cfc87b1217dec9aa7298a3fe3ed56",
+    "Backends/Sources/AppleLocalAILEAP/LEAPLanguageModel.swift": "312ac90e28eecada93e3f043cd285b8b9695393c686b4e76eeeb08271eb75fb0",
+    "Backends/Sources/AppleLocalAILEAP/LEAPTranscriptPlan.swift": "429754783d8491f16f2094a62db19cf1eea02c98db28d66ad67ecddccbfc1206",
+    "Backends/Sources/AppleLocalAILEAP/Package.swift": "df3c4e67820c4360b5d4854bb2c4d2e9100b5a1080e346e308d9174317ab3847",
+    "Backends/Sources/AppleLocalAILocalModels/AppleLocalAILocalModels.swift": "b84d76c0f88afa5d766b7a63933c21ae20e8c2bf0f7b5abc43e4280de0ad804c",
+    "Backends/Sources/AppleLocalAILocalModels/CGImagePNG.swift": "8eaa6c2544604015718c91b53bc187cf87247540f59803d22600b6b7e4b4a9df",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTConfiguration.swift": "89e0f462db8e16032832afb3877dd143ed8fbf37c040d105a8c1aa241b904c52",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTEngineCache.swift": "8e8e1f54519dba36fc98a20cb0cfb79b6035b887b09b4594d3e5c943db2274df",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTErrors.swift": "dc228458ceab4c38ef1d38e7dde810f552a06854b07abd0eca2027f562f56ed4",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTGenerationLifecycle.swift": "7b1d40fb0d9e100a052c3decc41a3573171253ba2cdde6ce241e622782a02e6d",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTLMExecutor.swift": "2cc39ed7423a1a3584dde96c267170b24323676a919ba0f7892e6d5cde0fdcb9",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTLanguageModel.swift": "7cf8d412cf6fea9bcebb2cf1cf2810c50d8c2a77703973a59ff073bb1dda2f33",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTModelInspector.swift": "68798f55c0aa0b43cd216b8604cdc2b66534e7e032cfef0c9bf25e3bd40adde5",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTSampler.swift": "c990fe9bf2177a1598bbc14a8d87fe811c00504a078f0073d9504b63dd92f62f",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTSupport.swift": "0f66a661384b254ffd2ba4e682424b803c57cc0ef651f7b7ab00244499a8861f",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTToolCallEnvelope.swift": "50064195bc5378d0210d171359075b2036e61de1c793b87ae2897fb7bad05f86",
+    "Backends/Sources/AppleLocalAILocalModels/LiteRTTranscriptPlan.swift": "8495e73debda478b62e41726b15567c01fe42404e4b4e86255a4ef55e222b46b",
+    "Backends/Sources/AppleLocalAILocalModels/LocalModelAsset.swift": "07d45716f68cab912bf5ec73414bc3605eb144467ebf930b34b56480d9790536",
+    "Backends/Sources/AppleLocalAILocalModels/LocalModelAssetAdmission.swift": "77e7c09e848ed1287f0c19b518e3ca4e76cc7adc672cc3538eae072847c00004",
+    "Backends/Sources/AppleLocalAILocalModels/LocalModelFileFormat.swift": "b7473a607f251973bcda24a2602d032e6857f178f2594d55b1c4c296334ba140",
+    "Backends/Sources/AppleLocalAILocalModels/ManagedModelAssetStore.swift": "bdfcf7d636dfa149f881bb2a3bb4acbed02051802a05bcb8d93376d8ae82b72e",
+    "Backends/Tests/AppleLocalAILEAPTests/LEAPAdapterTests.swift": "d167d535f1da58d03c2f4128ee1196fccf9ea2daa530136478586e95e8f1bccf",
+    "Backends/Tests/AppleLocalAILEAPTests/LEAPArtifactStoreTests.swift": "f56d28142bff7a2d89dee88d65f0c59ebc12beb55f309da33f0d887aa095999b",
+    "Backends/Tests/AppleLocalAILEAPTests/LEAPAudioBoundaryTests.swift": "bdc15d7d024574e1b4802c0aa92cf8c3a36080df398fea05c94e3128a5193b8e",
+    "Backends/Tests/AppleLocalAILEAPTests/LEAPNativeTests.swift": "ebd41c7072f0b27de6d0189b0c6bc97533276fe3a58b422d93ab3ab86d061ac4",
+    "Backends/Tests/AppleLocalAILocalModelsTests/LiteRTGenerationLifecycleTests.swift": "72ca1a310163ec634d63dbe3f9e76126d3b49faa4fc9c40cd29d64536da3f296",
+    "Backends/Tests/AppleLocalAILocalModelsTests/LiteRTSamplerTests.swift": "31e7aa5af5682a6dae60798cdfbbb73c9c69349878f38c9b858045699cc2aabe",
+    "Backends/Tests/AppleLocalAILocalModelsTests/LiteRTTranscriptTests.swift": "fd615afab3a14162482f1e22010f1fbe5558faff4ee5b11204b31b11584b9603",
+    "Backends/Tests/AppleLocalAILocalModelsTests/LocalModelAssetTests.swift": "90be2bd4b4e8ace7dae46a68fc766940a72f20b9cc91a17df52516fd3cc57218",
+    "Backends/Tests/AppleLocalAILocalModelsTests/ManagedModelAssetStoreTests.swift": "c4d4cf930dde6f6b6904db7e4ac0564f9d60867218672907a4520ebe4b3d01f3",
+    "Compatibility/AppleLocalAISystem/Package.swift": "622e6c61c6ed9b984315157fb4acb7a65c75068822e43fe6a5367beae0bc8f79",
+    "Compatibility/AppleLocalAISystem/Sources/AppleLocalAISystem/AppleLocalAISystem.swift": "59fcdf54e345a84b1d8190e9efe43289ba7a48d3d77dc58cbeb6c53f407f9705",
+    "Compatibility/AppleLocalAISystem/Tests/AppleLocalAISystemTests/AppleLocalAISystemTests.swift": "0f06b05e67dad4e32b3f53bd5a331f1af22c27a22853845250e3df55934053ce",
+    "Examples/SystemModel/AppleLocalAISystemSample.xcodeproj/project.pbxproj": "c889f1eabcbfb81ec671ce0aa4688bb52aad0695d4fccf5503545bc5e8c08efe",
+    "Examples/SystemModel/AppleLocalAISystemSample.xcodeproj/xcshareddata/xcschemes/AppleLocalAISystemSample.xcscheme": "925aa80ab22260205b79687e619e595d2510d592316b185b0773a101b91dbf61",
+    "Examples/SystemModel/Sources/SystemModelExecutionEnvironment.swift": "4f52ea0755ea7887ff73d6065976d467e9dddf7586f306deb43905c0e5a908ea",
+    "Examples/SystemModel/Sources/SystemModelSampleApp.swift": "07efbb764ec0344f53beb2a10202d96cf2d53ada60e1e3eff1956ed058d5d575",
+    "Examples/SystemModel/Sources/SystemModelSampleModel.swift": "eb8e4206e7477e63d15fd000fc5f96ea018d9f505590664db644369cca412f2e",
+    "Examples/SystemModel/Tests/SystemModelSampleTests.swift": "cfb47fa6f2e7da09deadb25df03f126e009ab9a970294d3dc26c1007ef72be5d",
+    "Examples/SystemModel/project.yml": "4a52c0b14328e31b56032949a3ebf62814e4522c00a2250c50ce5f6e27c8d6e3",
+    "Examples/SystemModel27/AppleLocalAISystem27Sample.xcodeproj/project.pbxproj": "85f78e6e9881776c0f82670fa0093676e3ea70747ab0769857f6cb086bd0c50b",
+    "Examples/SystemModel27/AppleLocalAISystem27Sample.xcodeproj/xcshareddata/xcschemes/AppleLocalAISystem27Sample.xcscheme": "bf27441845e9bdb367a380aa56c899e00b4ad4acfa33c32e53aef7e14811cc58",
+    "Examples/SystemModel27/Sources/SystemModel27SampleApp.swift": "8a508a372039d7beabff87e4e65261c59f51c4355a7b3a2c264ba031e8c5b2cd",
+    "Examples/SystemModel27/Sources/SystemModel27SampleModel.swift": "1f7d9ce22fd48fe030f0c3b8cfe3fa209055e8778b82c525b15739fff65e1fbd",
+    "Examples/SystemModel27/Tests/SystemModel27SampleTests.swift": "0d68e15f1bdb07a9c4a20ffe5f85a91f67f4452b868e7d781a2995e1ee33d436",
+    "Examples/SystemModel27/project.yml": "bf6beccbe57ddc8c8e0e2d4f85eddc4c4b3951392ee291757e4f695dcd78ba14",
+    "Examples/iOSOnDemand/AppleLocalAIOnDemandSample.xcodeproj/project.pbxproj": "3a77f2e594b7fe3fc5231e532706fb2f5d838fae95c182c700bbace13e2df35e",
+    "Examples/iOSOnDemand/AppleLocalAIOnDemandSample.xcodeproj/xcshareddata/xcschemes/AppleLocalAIOnDemandSample.xcscheme": "090536afbdf27d5f8227a62ab103e89038e4ed2c250783fa8c8bee0fe99effa5",
+    "Examples/iOSOnDemand/Sources/OnDemandModel.swift": "ae20583aa91eaea69b6f58d484283f5b84b0dd3273902c902f96cfa2c184a81c",
+    "Examples/iOSOnDemand/Sources/OnDemandSampleApp.swift": "efc864fde553433d8e775f010c43f241574eb9240b8f15b50f06ae23bceb925b",
+    "Examples/iOSOnDemand/Tests/OnDemandSampleTests.swift": "2bdd785f882c78d8f4638a17baae4cb6ca91938712fd4b450cf78cb2695dabdf",
+    "Examples/iOSOnDemand/project.yml": "284c0912d618d9dff8ce15d2a7b5d223954afb4db9111186a89cbecda15d6ebb",
+    "Package.swift": "1f401cc04daa01ead85dc7ca9b671ffd0e56a9a973941cd86a3131cca4df4bed",
+    "Platforms/macOS/Package.resolved": "abb31d3a6a02015cc7e49e00db6fab1633ba5377cb8eca70fd5a735b0bb27c52",
+    "Platforms/macOS/Package.swift": "a3c0414035fb02be03d4631548f1f12abe59ee6b7f4089e3fcfb9b2eb943e33f",
+    "Platforms/macOS/Sources/AppleLocalAIConsole/PlatformRequirement.swift": "9cb4c6c9be973c7cd10a40cfbda7a16d9fd91cae2ab3f85600ba256645f18fe7",
+    "Platforms/macOS/Sources/AppleLocalAIConsole/main.swift": "f168df08525d4c203617e59883b4208df05c02e26ab730ee2e1354bfd18685ee",
+    "Platforms/macOS/Sources/AppleLocalAIFoundationModels/FoundationModelsReadiness.swift": "e83040c5deee04cb45228b88bd0d01a2f77c40b9d3c595964373677f05ebf182",
+    "Platforms/macOS/Sources/AppleLocalAIFoundationModels/FoundationModelsResponseSchema.swift": "0c41bbd98f6e26a71c28982154c412a5bf37d69380b20981ac651f33aa12ea0e",
+    "Platforms/macOS/Sources/AppleLocalAIFoundationModels/FoundationModelsSettings.swift": "af80cfbb2feac6f930f4de4dd1ff2491af5a4018880da161b6d9eab1f6b10c72",
+    "Platforms/macOS/Sources/AppleLocalAIFoundationModels/LocalLanguageModels.swift": "630509ee24a382d228b18b725b449edaf82182a9f4d9b1345d00a3472825fc2a",
+    "Platforms/macOS/Sources/AppleLocalAIFoundationModels/LocalModelResourceIdentity.swift": "010b80c653b8325ac567b5ec18e5dac68d7f01a742e870b9e23ace499ba19952",
+    "Platforms/macOS/Sources/AppleLocalAIFoundationModels/PlatformRequirement.swift": "1d360f0aab4eeee62d11217d6bcf396da748b32ccedf39004a93b7955e783061",
+    "Platforms/macOS/Sources/AppleLocalAIHost/ConversationState.swift": "30fa7f6cd6f4633de1ee3529be36a8583bce018530bcac798872731e4512c74b",
+    "Platforms/macOS/Sources/AppleLocalAIHost/GenerationPolicy.swift": "d06a9c02a2f06c9be9609c427dc3f0ef3d265c4202437f154944393bf029c84a",
+    "Platforms/macOS/Sources/AppleLocalAIHost/LocalAIInstructions.swift": "3a89ab62563d722b44d35aeeae970e26801640fcfd937ff00a8fdffded89e0d7",
+    "Platforms/macOS/Sources/AppleLocalAIHost/ModelSelectionPolicy.swift": "f4a35769bfdf3c1d502be02647a656aa6894456f9b15f4617524dbbd12396b71",
+    "Platforms/macOS/Sources/AppleLocalAIHost/PlatformRequirement.swift": "0964a8d6b4f0f587a2f3f22641a4b876f8f2f4ff058dd92d53a7a47fdc994bc4",
+    "Platforms/macOS/Sources/AppleLocalAIHost/ProviderReadiness.swift": "9d50d7078df2053064c44e9170cfc1459d86cc1547a0a34ed4936d4150cba6be",
+    "Platforms/macOS/Sources/AppleLocalAIHost/RemoteCredentialPolicy.swift": "9290f0620dd8ff46b780464fb8cb854b7637570f60fd00a60ad69a303b22a339",
+    "Platforms/macOS/Sources/AppleLocalAIHost/RemoteLanguageModelConfiguration.swift": "9160d5dff9e41e6de5a4ef0998c87521b1fecec970d34b2e191cca713bbdfbc5",
+    "Platforms/macOS/Sources/AppleLocalAIHost/RuntimePlan.swift": "c96ba9415dae7ea2a67ed396c5a538069641238abcaecd882ef980b685da0ee8",
+    "Platforms/macOS/Sources/AppleLocalAILiteRT/LiteRTSettings.swift": "ef1d7aef1b5b3da1062d5d460161fec68b4ce408916ad61b8b2f8a93b50a838f",
+    "Platforms/macOS/Sources/AppleLocalAILiteRT/PlatformRequirement.swift": "5a56d30bac4568b8aa1e2cb05e32275935fa8926320c4bd43288f5f4753d1733",
+    "Platforms/macOS/Sources/AppleLocalAIMac/App/AppleLocalAIMac.swift": "45bcff321d1ef202e123580fe8dc61ad47009bcb912d8151c07a336e63cd441c",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Models/AppleIntelligenceModel.swift": "11b4395f22836aa89a6272bebfb870558cd1050adbb272b78264ce60bf1adfe9",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Models/AppleLocalAIModelError.swift": "fe5eacc26d281a248e0ed38bcd1c9414a8e4c289a6c384fa82ba2c0692e7d082",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Models/FoundationModelsNativeSupport.swift": "2cabbcbd4794208e39967a0ad173a99be3cbfe9a85e5e48bb00c481a1e4f388e",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Models/LocalProviderChoice.swift": "d6b3069b634c5952a8b663d617bb30ff1f020af5705b27982b0cd30f24d42bf2",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Models/NativeModelResourcePolicy.swift": "c425c5896660a8330add4d39de8856f0fe2218bfd15c49bfc19d6849107ea10a",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Models/NativeResponseRunner.swift": "97a5767588a801f1c0a8fcf65c7e4412f0249c0035aadf0b9788e0b0dfe75510",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Models/ProviderSettings.swift": "450f28beece860d9557ccd322983f46e31a7c942fad86d2b0c05f737ba230c4f",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Models/ProviderSnapshot.swift": "0f942605d98dc37814c7d35d82f60135a7c8866d971c3d273b1e00fc48890e15",
+    "Platforms/macOS/Sources/AppleLocalAIMac/PlatformRequirement.swift": "54b7e580427cb9e50bf81287f6c2c30b0e39ba8c0da498f04fd117066d142bc8",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Services/ClipboardClient.swift": "4682efe319cda8d91faa762c6e6da4cba01d4063f095748b1af91e5ff5d50f54",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Services/ProviderSettingsStore.swift": "2ba9901549ab83ba006274ae21546ecc1cca1812620001b29a5112411539a812",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Services/RemoteCredentialStore.swift": "ad5a00ca14996be561bf73dd04a1ff2b3179ab4ca28c3ceb101042624f954d00",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Services/SecurityScopedResourceAccess.swift": "84e3dab1ce70f077d98a2d3b4c451cb0b3f2e086d89cdf1092fd646c2df58e8c",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Services/VisionKitTextExtractor.swift": "4f78b04415fb1f7627cf679c2daf9d39826080671303f10f78947ba00d1c66be",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Support/AppIdentity.swift": "9d045f1651c7b078f0d5b1184305e2bfd55f171e6cc0527868bb5c960bf025a6",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Support/InterfaceMetrics.swift": "bf9fce10043a89f3c3a914197b7402f8804b38318db1c8b5cc9b92098411246c",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/ComposerView.swift": "505f6b95bc3780dd89d1b2f1cff0e798b84594ff4968fa4c8cdba6a6378b6683",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/ContentView.swift": "a5fd6a012947ffa7e8fd965babbb74856064fd6ef81ca61c44903b23bbec1a30",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/ConversationHeaderView.swift": "4460a316323f8d377df1f923e91d03854c9ff58ccf4e97b93501e3524cdd006d",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/ConversationHistoryProjection.swift": "d6e5741bcd2a98e9b8850fdd06c4d2cd8191a71f68ed7341fa1a6483b509bc44",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/ConversationMessageView.swift": "0ffaf843c630e8602d19c50728b6dc7132a4f6c3f4b599c907e1ba73e9f6c9a1",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/ConversationPaneView.swift": "b933c1ff2601815ba4327b685515b277cf5e468bc1de9fb201b9c1b536ca520f",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/ConversationView.swift": "96bdbf6b5cc784dfd565a25ac70426161f2752add78070f06d3fed6c870ee86d",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/DiagnosticsView.swift": "12005fc9ff10674a73a3d1bdbc0f6a767651628300f6e97403e47e433da93043",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/MacSidebarView.swift": "8bb1789cd59ee7780b20b0960c04f8f560954c9d65e6fc693081c890164cfe5c",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/MenuBarActionRow.swift": "6b6e95365b8f654898dcbb196da20dce69de819d874e4050a6a2a8df9bcfda1e",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/MenuBarView.swift": "bfa7ee21690b230904d8219adf3707a153450215f3c8c29b0f3806a98f33cf83",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/ProviderStatusLabel.swift": "427f3887d56d3ee42124614ad828bae30845eaf22f666fa2db748ae68788a8a1",
+    "Platforms/macOS/Sources/AppleLocalAIMac/Views/SettingsView.swift": "9869d763157874e17a8514b57cc830c2b436262ede06314312be6d26e732d3b5",
+    "Platforms/macOS/Sources/AppleLocalAIProvider/HTTPServer.swift": "f9df8576ce581d9bc4f7fdce538e29b0c8ec8f1c2cb220b10bf2a77a7fa61179",
+    "Platforms/macOS/Sources/AppleLocalAIProvider/NativeRequestExecutor.swift": "432e638a01cb96f565ea00f76e6e13eb8940b68114e9ebbeac6d84721c981306",
+    "Platforms/macOS/Sources/AppleLocalAIProvider/NativeRequestSchemas.swift": "7d3662120cd0c52f9b61582683f6c472995ef0b0ce19b3bb9b24bdba28644e86",
+    "Platforms/macOS/Sources/AppleLocalAIProvider/PlatformRequirement.swift": "249ddc96efb740f59d4bdff9e26600ba4c4f939715f55d73986c54e0702e7470",
+    "Platforms/macOS/Sources/AppleLocalAIProvider/ProviderMain.swift": "5b33125d7cd89b61e9c4511dbf39c4a1d7bcb0ad8821aaa40852294d9c47c17f",
+    "Platforms/macOS/Sources/AppleLocalAIProvider/ProviderModelCatalog.swift": "04576511bc8536ec426510e788fb4d7ed2531a7b634869ea32d5028383ba857b",
+    "Platforms/macOS/Sources/AppleLocalAIWire/InferenceOutput.swift": "13824f77e76c7f45e86579b0986bc8259184e28a2b442cf7b3b4dcaf1698e63b",
+    "Platforms/macOS/Sources/AppleLocalAIWire/InferenceRequest.swift": "2b3548b23731d0693b6df977562fb695f3dd00c4198a77988b869daada43b0ac",
+    "Platforms/macOS/Sources/AppleLocalAIWire/JSONValue.swift": "254ac4e275423fdb0bcbb51fca0c209457090136513be205368a433ab097ffae",
+    "Platforms/macOS/Sources/AppleLocalAIWire/PlatformRequirement.swift": "806acbd2784240d90cf75ce3ce1e9dcd535b91b3982f8498c4426fd200ec5a6f",
+    "Platforms/macOS/Sources/AppleLocalAIWire/ProviderConfiguration.swift": "7142635fe0a4a4b6753c261c9904b1f072d168dcaa69c5d7a0d462a8a145b154",
+    "Platforms/macOS/Tests/AppleLocalAIEvaluationTests/NativeQualityEvaluation.swift": "07e5360ea86c773ed1125a54cb1e32b348c198bc375943d16f76413c4966436e",
+    "Platforms/macOS/Tests/AppleLocalAILiteRTTests/SettingsTests.swift": "04d38012a9ac0b26f6bf97b392582c2d3f26c21d0014c14afcd897fe4466785c",
+    "Platforms/macOS/Tests/AppleLocalAIMacTests/ConversationHistoryProjectionTests.swift": "37b45bb71b4bd6a0b289e478ce2f815855ff530cf7c47775ea428433f2f1aa98",
+    "Platforms/macOS/Tests/AppleLocalAIMacTests/DynamicProfileTests.swift": "2dfda262fbfb9c78d4709fe2fe752517e4b2fa84b0d62a6c466c3e97c3976d5b",
+    "Platforms/macOS/Tests/AppleLocalAIMacTests/NativeModelFormatTests.swift": "7957fd8794f12f7a780903e7f9ba260eb8014e8f36133d5562dd414038d0a402",
+    "Platforms/macOS/Tests/AppleLocalAIMacTests/NativeModelInferenceTests.swift": "a4965f40223bcdd825a8d24dc853a40ac08f80bf722926e21c84a6e90331b23d",
+    "Platforms/macOS/Tests/AppleLocalAIMacTests/NativeResponseRunnerTests.swift": "ea6b65224fe33c49cf8d1ed30f19d57792b3ea1ae047843aa5772397321093a1",
+    "Platforms/macOS/Tests/AppleLocalAIMacTests/NativeTestResources.swift": "84da9fbb4cf1b0c8413f43c5c844dab56904689ccc94de6cd8bb7c0ea85d11f9",
+    "Platforms/macOS/Tests/AppleLocalAIMacTests/ProviderSettingsStoreTests.swift": "d3db28668fc3a0baf3a9470fa73468a73835094da8a5257cdaf672fea681770d",
+    "Platforms/macOS/Tests/AppleLocalAIMacTests/ProviderSnapshotTests.swift": "3f8a571061d601a8efa7ffe0afaa303545ee0e6a7c9bff37ef878749c2a5b1f9",
+    "Platforms/macOS/Tests/AppleLocalAIMacTests/RequestIsolationTests.swift": "13507d40428c9f8a8e0e47c2c843e011f060a01397f4b22e2cd6cdb5e2eb1a4a",
+    "Platforms/macOS/Tests/AppleLocalAIProviderTests/NativeGatewayTests.swift": "bbf091cbf363329eb8cbd410c89497e1b64e8a1f66df25e846189c54ed317e70",
+    "Platforms/macOS/Tests/AppleLocalAIProviderTests/NativeSchemaTests.swift": "8e9af745897b5b1bd141cfa2bf5d1acadd15bed497a5daaea6c3ea03a4402590",
+    "Platforms/macOS/Tests/AppleLocalAITests/ConversationStateTests.swift": "e3c7512c0796db02bffa102864ed192abbbf6548242a5e40fcfdf50b5cb10bc3",
+    "Platforms/macOS/Tests/AppleLocalAITests/FoundationModelsResponseSchemaTests.swift": "50bd67b42df50a3c45d812641fec5dffecd5b2ff1211b4ed70e2e6d714c55838",
+    "Platforms/macOS/Tests/AppleLocalAITests/FoundationModelsSettingsTests.swift": "fe3c5e65d1f10d288295c8b0e4eeeee54bffd6b5d4fde00a49930f1208a910af",
+    "Platforms/macOS/Tests/AppleLocalAITests/LocalModelAssetTests.swift": "10c0eaf509a4969997ab4efebcee7d0364cef613fccc060e899ba236c03b6f43",
+    "Platforms/macOS/Tests/AppleLocalAITests/ModelSelectionPolicyTests.swift": "e5f48fa727056832afb0e921f59efaf9ec4bdca6a3e99efe0055e66d787fcee4",
+    "Platforms/macOS/Tests/AppleLocalAITests/RemoteCredentialPolicyTests.swift": "e294db73cf47f000f0bdd022b064caeba8f6bf4751166fff1c7d5e942268a92a",
+    "Platforms/macOS/Tests/AppleLocalAITests/RuntimePlanTests.swift": "d65887127f8f0c4bb040afc0396ccc35af3dd20b24d560588b7c508d3cf04c0b",
+    "Platforms/macOS/Tests/AppleLocalAIWireTests/ConfigurationTests.swift": "3a01dad9e6068bdabd022d671fcbf2659f1b2ad5f77c0b8a2439ad0e627ec8f7",
+    "Platforms/macOS/Tests/AppleLocalAIWireTests/OutputTests.swift": "e3ff05be45826e4d2105299cbc5821ba6568ff29fbb26b8efb7a350833f9c98b",
+    "Platforms/macOS/Tests/AppleLocalAIWireTests/RequestTests.swift": "7edc54c71e2252664009f7b147fdaae1c5f5b43e87a2f04e02f37caba2feaee9",
+    "Platforms/macOS/Tests/AppleLocalAIWireTests/ToolCardinalityTests.swift": "3f03d77b7c9788e90e97a235791c55824c6ccf06607df7397cea1d6b221c4fc8",
+    "Platforms/macOS/examples/CoreAILanguageModel.swift": "02d5358b7507445718e7377907f692e1a39a451b0ee384768ce7fa97448d2de8",
+    "Platforms/macOS/examples/DynamicProfile.swift": "a6f81016653779ff776c062f0b588b0e0ad688acb1c25312810129fe5311599c",
+    "Platforms/macOS/examples/MacMLXFoundationModelsClient.swift": "92a7d4c73760a2204f953100d04bf2568e8e5f1ebe60b088f300c37399f2e424",
+    "Platforms/macOS/examples/SystemLanguageModel.swift": "0ad4762335b273e9d1577739d86a7ba9ec80847bd9388b7203b5ee89179b41c7",
+    "Platforms/macOS/integrations/CoreAI/compile-aot.sh": "547642da833cf5f189ba5814a20aba53ee65bea74eeac86ee2d026adb607bdba",
+    "Platforms/macOS/packaging/AppleLocalAIMac/AppleLocalAIMac.entitlements": "05a34d0d51ddede0249f9e7df1c929db0aadac53430cf8a90af6232b7f733be4",
+    "Platforms/macOS/packaging/AppleLocalAIMac/Info.plist": "04114606fc5371173febac025d6b03918eebdc7ecdd801bc18b40ae3f07f4c15",
+    "Platforms/macOS/script/build_and_run.sh": "7b02172692f7b04a957a130bcaf2a6ac393fa8dda64de6fa46fa825f51ed18b1",
+    "Platforms/macOS/script/check.sh": "48b329442e86cb4febe960870bc9e7185f75bfa30056a90ff5879964d0efa678",
+    "Platforms/macOS/script/make_test_image.swift": "730e0c76366bae5d8ef255e141d2c8dc7fa0085b90143753c04884a4f6d89c45",
+    "Platforms/macOS/script/verify-provider.py": "6937e7b376d2ea1096992f278543356c9a0a723a447e936551e74a8533d5154d",
+    "Platforms/macOS/script/verify_model.sh": "0888850e870bee6e2d0a1230c312aa367691d7b74b4b2bda971466076ad468f9",
+    "Platforms/macOS/script/verify_workflow.sh": "ef622197ef4865b12e2c73ba89dbf154b516835d449eae97325266e3fd731a12",
+    "Sources/AppleLocalAI/AppleLocalAIError.swift": "2853d68be92a8b39004154df117ea5d60759ff2d92dcbec93bd31a90c4d9a02a",
+    "Sources/AppleLocalAI/AppleLocalAIModelCapabilities.swift": "ab2d3d6595b4d90a23b42b5a1cc8c39f6b5d0340e0cc9302c49e27aa25f77db3",
+    "Sources/AppleLocalAI/AppleLocalAIModels.swift": "b3519b0281b72e2e86f8b1297a216032461649b402bccd489ce85af6b63e5776",
+    "Sources/AppleLocalAI/AppleLocalAIProfile.swift": "001587261abb66ce783226a79435d61d105683dbb27eb36c926b7acb828508a9",
+    "Sources/AppleLocalAI/AppleLocalAIRequest.swift": "f59e1365a83022695a10798cba815ad7f7e8311ad42368b2af05d6a18b4f0acd",
+    "Sources/AppleLocalAI/AppleLocalAISession.swift": "b346fb4a2cc19b253a34965a025c3ffc8cb14d0ab5917b4fc3ba8f70c4acb94c",
+    "Sources/AppleLocalAI/AppleLocalAITools.swift": "e6660af93d6df489fdaac2b78aea51cee81dd8de48b08a586ca02cef18efb706",
+    "Sources/AppleLocalAI/DynamicProfile.swift": "ff2a672c790e72ccae618165b3abac19d94777c782cfccc347d260e52cc6cd48",
+    "Sources/AppleLocalAI/HistoryProjection.swift": "a1d58af89abbfeb3e62d305dff68a88951c0dbbbcc3bc41184df109a0364588d",
+    "Sources/AppleLocalAI/SessionOperation.swift": "a7d048a5376cbfa43036aa48e28cb7027523c92776d13ad70ce55d1d206f8fd6",
+    "Sources/AppleLocalAICore/HistoryWindow.swift": "5d36be2fe88ba865bcdd6b08809c5ccd4bc4eda775a97460a0c85054971b90ff",
+    "Sources/AppleLocalAICore/ModelReadiness.swift": "95229e4da6566b1d65dd515a8407ad09903a68951221fb1375c3a6f6ed969726",
+    "Sources/AppleLocalAICore/OperationLifecycle.swift": "1c4aec4936c84f39090a1e28b4c1b6beb12f2aca54470c3ee4ad00b132e413a4",
+    "Sources/AppleLocalAICore/RequestContract.swift": "1b6a83221a741c08a3bfcaa526ca3f1e214f1618296c12a40a56ec57f123346e",
+    "Tests/AppleLocalAICoreTests/HistoryWindowTests.swift": "b2b2fc2812e82935e1dec0fdc938ba65b2f7c3950cdeddf5b775c21a807b3dbd",
+    "Tests/AppleLocalAICoreTests/ModelReadinessTests.swift": "580068c695f0f237400ea34f0655e0f0754e1be90526d5dfc71888304d89cd89",
+    "Tests/AppleLocalAICoreTests/OperationLifecycleTests.swift": "a75498d9e52b4c08ab5ee1e6381a8c7b35a83619a0611fc57ddc4ed756e0f4e2",
+    "Tests/AppleLocalAICoreTests/RequestContractTests.swift": "c8c0610d0c7a30621ce5c83e297482ccc4cef514914ca4fe2eee84e2da82b103",
+    "Tests/AppleLocalAITests/NativeSystemIntegrationTests.swift": "dbede225941063b21bdc00f7461e397e2b4ab58ceef0649a0fc807264fd35e93",
+    "Tests/AppleLocalAITests/OperationExecutionTests.swift": "f1c93f3fe25a7923c4299eb603b4b6563d820541ffbf0241fb8f6508a5beca3b",
+    "Tests/AppleLocalAITests/ProfileValidationTests.swift": "41d100b980aa36c938a698a6cdec07a3a32b59bfcb8ce755b43437fe8e629940",
+    "Tests/AppleLocalAITests/SessionLifecycleTests.swift": "d22e625b69f5034ca42eed9249ee481761d53003cd0c45b5165c1d737e6e190c",
+    "scripts/check-architecture.sh": "e4f3747b1089fbb2dc78c41a2bc77eda9f795d22f192ebb90fdad75b233746a2",
+    "scripts/check-platforms.sh": "2606c49efb6266519f8c952d1f31bc4f5ebe42e8878f477ad909e8511c88e731",
+    "scripts/check-portable.py": "6965acc142a232af615e01511ce3d23874ff7a408fed0cd1ccc676439faf6f76",
+    "scripts/sign-leap-embedded.sh": "d237c6f59afc990ce575654a79ad970465adb8bdc7938cf679c17dc121ed46ed",
+    "scripts/tests/test_verify_system_model.py": "b25af269ea5fa1983e08d018e12c1ef57d8ff2de3bdc625586a917bb8362d8b8",
+    "scripts/verify-system-model.py": "340970e4d24786ff17c95931ba4f20a301572f7d9c83b6bff3b5adc460f21045"
+  },
+  "defaultTranscriptPolicy": "revertTranscript (public contract unchanged)",
+  "licensePolicy": "No reuse license for AppleLocalAI; third-party notices preserved",
+  "macOSRuntime": {
+    "console": {
+      "outcome": "PASS",
+      "exitCode": 0,
+      "response": "Hello, the local model is ready.",
+      "log": "console-native-response.log"
+    },
+    "provider": {
+      "outcome": "PASS",
+      "smokeExitCode": 0,
+      "bind": "127.0.0.1:18765",
+      "allowPrivateCloud": false,
+      "allowExternalNetwork": false,
+      "checks": [
+        "unauthenticated rejection",
+        "real system model response",
+        "real system model stream",
+        "native function-call identity and tool-result continuation"
+      ],
+      "artifacts": "provider-native",
+      "scope": "responses API smoke; not every endpoint/load scenario"
+    },
+    "isolatedAppStartup": {
+      "outcome": "PASS",
+      "bundleID": "com.applelocalai.mac.verify.20261004",
+      "artifacts": "mac-app-startup",
+      "scope": "release startup/scene only; not complete UI qualification",
+      "cleanup": "only isolated verification process terminated"
+    },
+    "nativeOCR": {
+      "outcome": "PASS",
+      "exitCode": 0,
+      "method": "byte-identical production extractor and scoped-access source in isolated executable; real VisionKit with actual receipt image",
+      "recognizedTotal": "33.00",
+      "artifacts": "native-ocr-probe"
+    },
+    "fullCheck": {
+      "outcome": "PASS",
+      "exitCode": 0,
+      "log": "macos-verified-exit-status.log"
+    }
+  }
+}

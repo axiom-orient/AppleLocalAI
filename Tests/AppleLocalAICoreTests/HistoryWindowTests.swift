@@ -31,11 +31,19 @@ import Testing
   #expect(HistoryWindow.retainedRange(in: [.prompt, .toolCalls], limit: 1) == 0..<2)
 }
 
-@Test func repeatedToolCyclesRemainInOneTurn() {
+@Test(arguments: 1...6)
+func repeatedToolCyclesRemainInOneTurn(limit: Int) {
   let entries: [HistoryEntryKind] = [
     .prompt, .toolCalls, .toolOutput, .other, .toolCalls, .toolOutput,
   ]
-  #expect(HistoryWindow.retainedRange(in: entries, limit: 1) == 0..<6)
+  #expect(HistoryWindow.retainedRange(in: entries, limit: limit) == 0..<6)
+}
+
+@Test func laterToolTurnDoesNotPullAnEarlierTurnIntoTheWindow() {
+  let entries: [HistoryEntryKind] = [
+    .prompt, .toolCalls, .toolOutput, .other, .prompt, .toolCalls, .toolOutput,
+  ]
+  #expect(HistoryWindow.retainedRange(in: entries, limit: 4) == 3..<7)
 }
 
 @Test func newUserTurnDoesNotRetainOldToolTurn() {

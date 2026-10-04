@@ -17,6 +17,7 @@
         case user(prompt: String, attachments: [Attachment])
         case assistant(String)
         case tool(title: String, detail: String)
+        case unsupported
       }
 
       let id: String
@@ -57,6 +58,7 @@
           switch segment {
           case .text(let value): !value.content.isEmpty
           case .structure, .attachment: true
+          @unknown default: true
           }
         }
       case .response(let response):
@@ -65,12 +67,15 @@
         !calls.isEmpty
       case .toolOutput(let output):
         !output.segments.isEmpty
+      @unknown default:
+        true
       }
     }
 
     static func latestUserPrompt(in history: [Transcript.Entry]) -> String? {
       for entry in history.reversed() {
         guard case .prompt(let prompt) = entry else { continue }
+        guard !containsUnsupportedSegment(prompt.segments) else { return nil }
         let text = text(in: prompt.segments)
         if !text.isEmpty { return text }
       }
@@ -83,12 +88,18 @@
         return nil
 
       case .prompt(let prompt):
+        guard !containsUnsupportedSegment(prompt.segments) else {
+          return Message(id: entry.id, content: .unsupported)
+        }
         let attachments = prompt.segments.compactMap(attachment(from:))
         let text = text(in: prompt.segments)
         guard !text.isEmpty || !attachments.isEmpty else { return nil }
         return Message(id: entry.id, content: .user(prompt: text, attachments: attachments))
 
       case .response(let response):
+        guard !containsUnsupportedSegment(response.segments) else {
+          return Message(id: entry.id, content: .unsupported)
+        }
         let text = displayText(in: response.segments)
         guard !text.isEmpty else { return nil }
         return Message(id: entry.id, content: .assistant(text))
@@ -99,12 +110,26 @@
         return Message(id: entry.id, content: .tool(title: "도구 사용", detail: names))
 
       case .toolOutput(let output):
+        guard !containsUnsupportedSegment(output.segments) else {
+          return Message(id: entry.id, content: .unsupported)
+        }
         let detail = displayText(in: output.segments)
         guard !detail.isEmpty else { return nil }
         return Message(
           id: entry.id,
           content: .tool(title: output.toolName + " 결과", detail: detail)
         )
+      @unknown default:
+        return Message(id: entry.id, content: .unsupported)
+      }
+    }
+
+    private static func containsUnsupportedSegment(_ segments: [Transcript.Segment]) -> Bool {
+      segments.contains { segment in
+        switch segment {
+        case .text, .structure, .attachment: false
+        @unknown default: true
+        }
       }
     }
 
@@ -114,6 +139,7 @@
         case .text(let value): value.content
         case .structure(let value): value.content.jsonString
         case .attachment: nil
+        @unknown default: nil
         }
       }
       .filter { !$0.isEmpty }
@@ -126,6 +152,7 @@
         case .text(let value): value.content
         case .structure(let value): value.content.jsonString
         case .attachment(let value): value.label ?? "이미지 첨부"
+        @unknown default: nil
         }
       }
       .filter { !$0.isEmpty }

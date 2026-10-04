@@ -31,7 +31,7 @@ public enum AppleLocalAIError: Error, LocalizedError, Sendable {
     case .profileUnavailable:
       "The session has no active model profile."
     case .tokenCountUnavailable:
-      "Token counting is only exposed by the active SystemLanguageModel on iOS 27."
+      "Token counting is only exposed by the active SystemLanguageModel on OS 27 or later."
     case .cancelled:
       "The model operation was cancelled."
     }

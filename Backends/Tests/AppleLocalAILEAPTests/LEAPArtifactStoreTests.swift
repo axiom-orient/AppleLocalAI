@@ -338,6 +338,41 @@ func artifactStoreRejectsInvalidRangeMetadata(headers: [String: String]) async t
   #expect(try await fixture.prepare() == [fixture.destination])
 }
 
+@Test func artifactStorePreservesCancellationAndCleanupFailure() async throws {
+  let fixture = try ArtifactFixture()
+  try fixture.contents.write(to: fixture.staging)
+  try Data().write(to: fixture.root.appendingPathComponent(".artifact-store.lock"))
+  try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: fixture.root.path)
+  defer {
+    do {
+      try FileManager.default.setAttributes(
+        [.posixPermissions: 0o755], ofItemAtPath: fixture.root.path)
+    } catch {
+      Issue.record(error)
+    }
+  }
+
+  let cancelled = Task {
+    try await fixture.prepare { progress in
+      if progress.phase == .verifying { withUnsafeCurrentTask { $0?.cancel() } }
+    }
+  }
+  do {
+    _ = try await cancelled.value
+    Issue.record("Cancellation and cleanup failure were hidden.")
+  } catch {
+    let underlying = try #require(
+      (error as NSError).userInfo[NSMultipleUnderlyingErrorsKey] as? [NSError])
+    try #require(underlying.count == 2)
+    #expect(underlying[0].domain == (CancellationError() as NSError).domain)
+    #expect(underlying[1].domain == NSCocoaErrorDomain)
+    #expect(underlying[1].code == CocoaError.fileWriteNoPermission.rawValue)
+  }
+  #expect(FileManager.default.fileExists(atPath: fixture.staging.path))
+  #expect(!FileManager.default.fileExists(atPath: fixture.destination.path))
+  #expect(fixture.transport.requests.isEmpty)
+}
+
 @Test func artifactStoreRejectsConcurrentOwnersAndReleasesCancelledLease() async throws {
   let fixture = try ArtifactFixture(replies: [.hold])
   let first = Task { try await fixture.prepare() }

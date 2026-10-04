@@ -2,6 +2,7 @@
 """Qualify one isolated Apple-native consumer on an explicitly selected Simulator."""
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -49,6 +50,18 @@ def inference_results(nodes, identifier):
     return results
 
 
+def source_identity(os_version, project):
+    package = ROOT / "Compatibility/AppleLocalAISystem" if os_version == 26 else ROOT
+    consumer = (ROOT / project).parent
+    files = {package / "Package.swift", ROOT / project / "project.pbxproj",
+             consumer / "project.yml", Path(__file__).resolve()}
+    for directory in (package / "Sources", consumer / "Sources", consumer / "Tests"):
+        files.update(directory.rglob("*.swift"))
+    files.update((ROOT / project / "xcshareddata/xcschemes").glob("*.xcscheme"))
+    return {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(files)}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--os", required=True, type=int, choices=CONSUMERS)
@@ -65,9 +78,10 @@ def main():
     output = args.output.expanduser().resolve()
     if output == ROOT or ROOT in output.parents:
         parser.error("Evidence and builds must be outside the source repository.")
-    if (output / "environment-result.json").exists() or (output / "native.xcresult").exists():
-        parser.error("Use a new output directory to preserve existing evidence.")
-    output.mkdir(parents=True, exist_ok=True)
+    try:
+        output.mkdir(parents=True, exist_ok=False)
+    except OSError as error:
+        parser.error(f"Use a new output directory to preserve existing evidence: {error}")
     report = {"requestedOS": args.os, "simulator": args.simulator,
               "developerDirectory": str(args.developer_dir),
               "outcome": "NOT_RUN_ENVIRONMENT", "inferenceRequested": False,
@@ -112,6 +126,7 @@ def main():
         report["project"] = project
         if not (ROOT / project).exists():
             raise ValueError(f"Missing isolated OS {args.os} consumer project.")
+        report["sourceSHA256"] = source_identity(args.os, project)
     except (OSError, subprocess.CalledProcessError, ValueError, KeyError) as error:
         report["error"] = str(error)
         save()

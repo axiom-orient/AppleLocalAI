@@ -1,95 +1,85 @@
 # Verification
 
-기준일: **2026-10-03**. 환경: macOS 27.0.1, Xcode 27.0, Swift 6.4.
-요청한 **macOS 27 + iOS 26.5 Simulator의 Apple 기본 모델 추론은 아직 FAIL**이다.
-26·27 프로젝트/패키지 분리와 SDK native settlement 보강을 추론 해결로 간주하지 않는다.
-명령·source fingerprint·원문은 [Apple API 검증 JSON](verification/apple-api-boundaries-20261003.json)에 있다.
+기준일: **2026-10-04**. macOS 27.0.1, Xcode 27.0, Swift 6.4.
+현재 소스와 각 검증 범위는 [현행 검증 기록](verification/commercial-20261004.json)에 있다.
+**전체 상용 출시 준비는 미완료**다. iOS 26.5 시스템 모델 추론과 iOS 27 native rollback 오류가 남아 있다.
 
-## Apple 시스템 모델
+## 현재 판정
 
 | 범위 | 결과 | 실제 확인한 내용 |
 |---|---|---|
-| root SDK/Core 회귀 | PASS | Main 33·Core 18 tests; cleanup 전/중 취소와 재진입 차단 포함 |
-| 독립 OS 26 package | PASS | 기본 suite 3 passed / 2 skipped; admission 검사는 추론 성공이 아님 |
-| macOS 27 root SDK | PASS | 기본 `.revertTranscript`; 실제 응답·stream·취소/정착·재사용·typed 생성·profile/reset 6단계 |
-| iOS 27 root SDK 샘플 | PASS | 명시적 `.preserveTranscript`; hosted tests 2 passed를 2회 연속 실행, 화면 경로도 native 6단계 완료 |
-| iOS 27 Simulator rollback | FAIL | `.revertTranscript` 취소/재사용에서 Swift Range 크래시; SDK wrapper와 직접 native 재현 모두 관측. native idle barrier만으로 해결되지 않음 |
-| iOS 26.5 Simulator | FAIL | 최종 앱 admission accepted 후 native 생성 실패; hosted tests 3 passed / 실제 추론 1 failed, exit 65 |
-| iOS 26 배포 빌드 | PASS | 앞선 generic arm64 iPhone 서명 없는 빌드; minimum OS 26.0 / SDK 27.0. 실제 기기 실행 증거가 아님 |
-| source/project 경계 | PASS | YAML 및 생성 Xcode project 검사; 현재 의존성·배포 버전 오염 반례 4개 거절, Swift format·문서 링크 검사 |
-| 지원 iPhone 실기기 | NOT_RUN | 연결된 iPhone 15(non-Pro)·iPhone 13은 Apple Intelligence 미지원 |
+| 기본 SDK·Core | PASS | 보고서상 Main 33·Core 19 tests; 요청·취소·정착·기록 경계 회귀 |
+| macOS 27 Apple 시스템 모델 | PASS | 실제 응답·stream·취소·재사용·typed 생성·profile/reset·도구 실행·handoff 8단계 |
+| 독립 OS 26 factory | PASS | 실제 Mac host session 생성·응답; iOS 26 추론 증거가 아님 |
+| iOS 27 시스템 모델 샘플 | PASS | 지정 iPhone 18 Pro, `.preserveTranscript`, 실제 추론 XCTest 2/2 |
+| iOS 27 `.revertTranscript` | CRASH | 응답·stream·취소 정착 후 재사용에서 native Swift Range 크래시 |
+| iOS 26.5 시스템 모델 | FAIL | 지정 iPhone 17 Pro Max, 실제 첫 응답이 safety 템플릿 오류 15/1001로 실패 |
+| 선택형 LEAP 온디맨드 | PASS | 지정 iOS 27 Simulator의 실제 CPU 모델 8단계, XCTest 2/2; Apple Intelligence 증거와 별개 |
+| 선택형 backend 회귀 | PASS | LocalModels 47·LEAP 50 reported tests; 비활성 native opt-ins는 추론 성공이 아님 |
+| macOS 제품 검사 | PASS | strict format·test suites·App/Console/Provider Release 빌드·config/status·plist/entitlements |
+| macOS 실행·전송·OCR | PASS | 격리 앱 startup, Console 실제 응답, 인증 loopback Provider response/stream/tools, 실제 VisionKit receipt OCR |
+| 검증 도구·구조 | PASS | runner 계약 3 tests, 플랫폼 compiler guard 28개, 패키지·소스 경계 검사 |
+| 지원 iPhone 실기기 | NOT_RUN | Apple Intelligence 지원 실기기 없음 |
 
-26 전용 `Examples/SystemModel`은 `Compatibility/AppleLocalAISystem`만 사용한다.
-27 전용 `Examples/SystemModel27`은 root `AppleLocalAI`만 사용한다.
-26의 host/runtime 차이는 표시·기록할 뿐 실행을 막지 않는다. runner는 정확한 runtime에
-해당 프로젝트를 선택하고 별도 DerivedData/xcresult를 사용한다. 명시한 실제 추론 테스트의
-Passed와 xcodebuild exit 0을 함께 확인해야 `INFERENCE_PASS`다. skip·빌드·admission은 이를 대신하지 않는다.
+Main/Backend/Mac 테스트의 fixture·skip·가용성은 실제 모델 추론과 구분한다.
+macOS 전체 검사에서 별도 opt-in인 시스템/Core AI 추론·품질 검사는 skip되었다.
+실제 시스템 모델 실행 근거는 위의 8단계 결과다. 모든 backend/model의 추론 성공을 뜻하지 않는다.
+앱 startup은 전체 UI 검증이 아니며 Provider smoke는 responses API 경로에 한정한다.
 
-같은 최소 public Apple API 바이너리는 26.5에서 실패하고 27에서 실제 `Hello!`를 반환했다.
-새 iPhone 17 Pro 프로필의 26.5에서도 availability는 available, contextSize는 4096이지만
-같은 실패가 발생했다. 따라서 기존 iPhone 13 프로필만의 문제가 아니다.
-OS 원문은 `com.apple.fm.language.instruct_300m.safety`의 host inference에서
-`promptTemplateNotFound` → SensitiveContentAnalysisML 15 → ModelManager 1001을 기록한다.
-호스트/runtime의 모델 정보 호환 문제는 `[ASSUMPTION]`이며 정확한 Apple 내부 수정 지점은 `[UNKNOWN]`이다.
-Apple 직원도 SDK가 보내는 모델 정보와 host 모델 정보 불일치를 설명한다.
-[Apple의 2026년 8월 답변](https://developer.apple.com/forums/thread/842733)
-일반 Xcode Simulator 지원과 Foundation Models의 이 조합 추론 성공은 별개다.
-[Xcode 지원표](https://developer.apple.com/xcode/system-requirements/)
+## 알려진 native 제한
 
-27 샘플은 취소된 native turn을 보존하는 정책을 처음부터 명시한다. 자동 정책 전환이나
-가짜 transcript 복원은 없다. SDK 기본 정책은 `.revertTranscript`로 유지하며, 해당 iOS
-Simulator의 rollback 성공을 주장하지 않는다. 정확한 Range 크래시 내부 원인은 `[UNKNOWN]`이다.
-추가한 SDK barrier는 같은 native 세션의 `isResponding == false`까지 기다리고 admission과
-mutation을 보호하지만, 이 rollback 오류의 해결책은 아니다.
-[Apple native busy 계약](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/isresponding)
+Simulator는 Mac의 모델 서비스를 사용한다. iOS 26.5의 metadata 조회는 성공했지만
+실제 safety 요청의 `instruct_300m.safety` 템플릿 조회가 실패했다.
+`promptTemplateNotFound` → ModelManager 1001 → SensitiveContentAnalysisML 15가 직접 오류 경로다.
+OS 세대 간 요청·자산 호환성은 가설이며 최종 Apple 내부 원인은 **[UNKNOWN]**이다.
+[Apple Simulator 설명](https://developer.apple.com/forums/thread/787445),
+[Apple 모델 정보 불일치 설명](https://developer.apple.com/forums/thread/842733).
 
-시스템 모델 prewarm·도구 실제 callback/effect·Swift 6.2 컴파일·지원 기기 실사용은
-별도 qualification이 필요하다. 전달·메타데이터·일부 진단 실행을 전체 기능 성공으로 세지 않는다.
+지정된 iOS 27 Simulator는 초기 `UNAVAILABLE` 이후 공개 API가 `available`로 바뀌었고,
+새 실행에서 실제 추론이 통과했다. 미준비 상태를 성공으로 바꾸지 않았다.
 
-### iOS 26.5 추가 조사
+SDK 기본 `.revertTranscript`는 유지되어 있다. 별도 scratch consumer에 이 정책을 명시한
+실행에서도 취소 정착 뒤 재사용이 `Swift/Range.swift:761`로 충돌했다.
+raw report는 프로세스 종료 때문에 `RUNNING`에 머물렀지만 판정은 **CRASH**다.
+`.preserveTranscript` 샘플의 성공은 rollback 성공을 뜻하지 않는다.
+취소한 turn을 보존할지 폐기할지는 caller의 명시적인 정책이다.
 
-기본 guardrails를 유지한 `@Generable` 구조화 응답도 같은 15/1001 오류로 실패했다.
-앱만 English/US로 실행해 실제 `Locale.current=en_US`를 확인했으나 기본 응답은 실패했다.
-호스트의 ko_KR 설정은 변경하지 않았으므로 호스트 언어에 관한 가설까지 배제한 결과는 아니다.
-공유 scheme·build 설정에서는 availability simulation override가 발견되지 않았다.
+## 이번 정리와 회귀 근거
 
-설치된 정식 macOS SDK 26.5/27.0을 같은 Xcode 27의 공개 `SDKROOT` 경로 설정으로
-선택하는 대조는 성공했다. 실제 Mach-O의 SDK 값도 각각 26.5/27.0이고 양쪽 모두
-macOS 27에서 `Hello!`를 반환했다. **macOS 대조이며 iOS 26.5 성공 증거는 아니다.**
-[Apple Base SDK 설정](https://developer.apple.com/documentation/xcode/build-settings-reference)
-
-다음 미검증 후보는 같은 iOS source/runtime에 정식 iPhoneSimulator SDK 26.5를 적용하는
-대조다. 이 SDK는 로컬에 없으며 공식 Xcode 26.6 다운로드에는 Apple Developer 로그인이
-필요하다. 현재 Mac 잠금과 로그인 미완료로 iOS SDK 대조는 **NOT_RUN**이다.
-Xcode 26.6 driver의 공식 host 범위는 macOS 26.x이므로, 이 후보는 Xcode 27 driver를
-유지한 SDK 선택 실험이며 혼합 조합 전체의 공식 지원을 주장하지 않는다.
-[Apple 지원표](https://developer.apple.com/xcode/system-requirements/)
-원문과 추가 실험은 기존 [검증 JSON](verification/apple-api-boundaries-20261003.json)에 연결했다.
-
-## Apple Intelligence 없는 온디맨드 경로
-
-앞선 iOS 27 arm64 iPhone 13 Simulator에서 실제 LEAP LFM2.5 230M의 캐시 없는
-149 MB 다운로드·검증·응답·stream·취소·재사용·unload·캐시 reload 8단계와 hosted tests 2개가 통과했다.
-Simulator는 `GGML_METAL_DEVICES=0` CPU 실행이며 `.preserveTranscript` 정책에 한정한다.
-이 경로는 Apple 시스템 모델이 아니다. SDK settlement 변경 뒤 실제 hosted tests도
-**2/2 PASS**다. 기존 검증된 캐시로 respond·stream·cancel·reuse·unload·cached reload를
-재실행했고 새 다운로드는 하지 않았다. 실제 iPhone·Metal·성능·메모리는 미검증이다.
-[온디맨드 기록](../Examples/iOSOnDemand/Verification/iOS27-on-demand.json),
-[샘플 제한](../Examples/iOSOnDemand/README.md)
-
-Mac 제품 UI·Provider·Console, Core AI·MLX·LiteRT 실제 자산 추론, PCC 권한·quota·consent,
-Keychain·서명 배포·장기 자원 안정성은 이번 변경 뒤 **NOT_RUN**이다.
-외부 소비자와 이전 영속 데이터의 호환성은 **[UNKNOWN]**이다.
+- 반복 도구 호출 사이의 response에서 이력 window가 시작해도 initiating prompt를 보존한다.
+  수정 전 `limit: 3` 실패를 재현했으며 모든 limit·다음 prompt 경계·ordinary suffix를 검증했다.
+- 빈 host의 HTTPS 설정을 Host와 Provider 양쪽에서 거절한다. 수정 전 실패·수정 후 통과를 확인했다.
+- LEAP staging 삭제 실패는 원래 오류와 cleanup 오류를 함께 보존한다.
+  실제 파일 권한 거부로 재현했으며 취소·남은 staging·두 underlying 오류를 검사했다.
+- Mac 대화 설정 참조와 non-frozen transcript 표시 분기를 복구했다.
+  원본 기록은 유지하고 지원하지 않는 항목은 별도 상태로 표시한다.
+- VisionKit의 non-Sendable configuration은 분석 작업 안에 두고 URL·String만 actor 경계를 통과한다.
+  같은 production source의 독립 실행 파일로 실제 receipt 이미지의 텍스트·합계 `33.00`을 인식했다.
+- runner는 기존 결과 디렉터리를 덮어쓰지 않고 consumer 소스 SHA-256을 기록한다.
 
 ## 재현
 
 ```sh
+swift test
 APPLELOCALAI_RUN_NATIVE_INFERENCE=1 swift test
 swift test --package-path Compatibility/AppleLocalAISystem
-scripts/check-architecture.sh
+APPLE_LOCAL_AI_SYSTEM_INFERENCE=1 swift test --package-path Compatibility/AppleLocalAISystem
+GIT_LFS_SKIP_SMUDGE=1 swift test --package-path Backends
+python3 scripts/tests/test_verify_system_model.py
+sh scripts/check-architecture.sh
+sh scripts/check-platforms.sh
+sh Platforms/macOS/script/check.sh
 ```
 
-Simulator는 `scripts/verify-system-model.py --os 26` 또는 `--os 27`에 정확한
-`--simulator`, 명시한 `--developer-dir`, 새 외부 `--output`을 전달한다.
-`--check-only`는 환경 조회만 한다. [26 샘플](../Examples/SystemModel/README.md),
-[27 샘플](../Examples/SystemModel27/README.md)에 실행 방법과 native 정책을 명시했다.
+Backend의 LFS 제외 설정은 Apple XCFramework와 관계없는 Android LFS 자산 다운로드를 피한다.
+실행한 CLI·원문 로그·xcresult는 위 JSON의 local artifact 경로에 보존한다.
+모델 결과에 관한 과거 기록은 [2026-10-03 증거](verification/apple-api-boundaries-20261003.json)에 있다.
+
+Simulator runner의 `--output`은 **존재하지 않는 새 외부 디렉터리**여야 한다.
+`--check-only`는 환경 확인이며 추론 성공이 아니다.
+현재 선택된 기존 기기는 26.5 iPhone 17 Pro Max (`B462783D-86CD-46ED-8C12-E147F20A65C1`)와
+27.0 iPhone 18 Pro (`6F7E3B30-7343-4290-8F67-399ED0A20EBC`)다.
+[26 샘플](../Examples/SystemModel/README.md), [27 샘플](../Examples/SystemModel27/README.md).
+
+PCC 권한·consent·quota, 모든 Core AI/MLX/LiteRT 자산, 지원 실기기 성능·메모리,
+장기 안정성, 서명·notarization 배포는 별도 검증이 필요하다. GitHub 소스 게시와 상용 출시 완료를 구분한다.

@@ -121,6 +121,19 @@ import Testing
 }
 
 @Suite struct RemoteEndpointRegressionTests {
+  @Test(arguments: ["https://", "https:///v1"])
+  func missingHostIsRejected(endpoint: String) {
+    let config = ProviderConfiguration(
+      port: 8765, tokenEnvironment: "TOKEN", allowPrivateCloud: false,
+      allowExternalNetwork: true,
+      profiles: [
+        .init(
+          id: "upstream", backend: .chatCompletions, resource: endpoint,
+          remoteModel: "model", capabilities: [])
+      ])
+    #expect(throws: (any Error).self) { try config.validate() }
+  }
+
   @Test(arguments: [
     "http://127.0.0.1:9000/v1/chat/completions/",
     "http://127.0.0.1:9000/v1/RESPONSES/",

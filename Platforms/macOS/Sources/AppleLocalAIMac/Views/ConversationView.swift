@@ -14,7 +14,7 @@
     var body: some View {
       let history = ConversationHistoryProjection.project(
         model.historyBeforeCurrentTurn,
-        limit: model.historyEntryLimit
+        limit: model.foundationHistoryEntryLimit
       )
 
       ScrollViewReader { proxy in

@@ -122,6 +122,45 @@ struct NativeSystemIntegrationTests {
       evidence.record(
         "profile-and-reset",
         "History preserved across profile changes; explicit reset starts a new conversation")
+
+      let invocations = NativeToolInvocations()
+      let tool = NativeQualificationTool(invocations: invocations)
+      let toolProfile = try AppleLocalAIProfile(
+        model: SystemLanguageModel.default,
+        instructions:
+          "Call qualificationEcho with token applelocalai-verified, then repeat its result.",
+        tools: [tool], maximumResponseTokens: 128, toolCallingMode: .required,
+        transcriptErrorHandlingPolicy: .preserveTranscript)
+      let toolSession = AppleLocalAISession(profile: toolProfile)
+      let toolResponse = try await toolSession.respond(
+        AppleLocalAIRequest(text: "Verify the token using qualificationEcho."))
+      let performed = await invocations.tokens
+      try #require(!performed.isEmpty && performed.allSatisfy { $0 == "applelocalai-verified" })
+      try #require(!toolResponse.content.isEmpty && !toolSession.isBusy)
+      evidence.record("native-tool-execution", "\(performed.count) actual native tool callbacks")
+      try persist(evidence)
+
+      try toolSession.reset(
+        profile: AppleLocalAIProfile(
+          model: SystemLanguageModel.default,
+          instructions: "Call qualificationEcho with token applelocalai-verified.",
+          tools: [tool], maximumResponseTokens: 128, toolCallingMode: .required,
+          toolCallPolicy: .handoff, transcriptErrorHandlingPolicy: .preserveTranscript))
+      do {
+        _ = try await toolSession.respond(
+          AppleLocalAIRequest(text: "Verify the token using qualificationEcho."))
+        throw NativeSystemQualificationError.handoffNotObserved
+      } catch let handoff as AppleLocalAIToolHandoff {
+        try #require(handoff.call.toolName == tool.name)
+      } catch let wrapped as LanguageModelSession.ToolCallError {
+        let handoff = try #require(wrapped.underlyingError as? AppleLocalAIToolHandoff)
+        try #require(handoff.call.toolName == tool.name)
+      }
+      try #require(await invocations.tokens == performed)
+      try #require(!toolSession.isBusy)
+      evidence.record(
+        "native-tool-handoff", "Native tool call returned without executing its effect")
+      try persist(evidence)
       evidence.outcome = "PASS"
       try persist(evidence)
     } catch {
@@ -179,4 +218,26 @@ private struct NativeSystemEvidence: Encodable {
 
 private enum NativeSystemQualificationError: Error {
   case cancellationNotObserved
+  case handoffNotObserved
+}
+
+private actor NativeToolInvocations {
+  private(set) var tokens: [String] = []
+
+  func record(_ token: String) { tokens.append(token) }
+}
+
+private struct NativeQualificationTool: Tool {
+  let name = "qualificationEcho"
+  let description = "Returns the supplied verification token."
+  let invocations: NativeToolInvocations
+
+  @Generable struct Arguments {
+    let token: String
+  }
+
+  func call(arguments: Arguments) async throws -> String {
+    await invocations.record(arguments.token)
+    return arguments.token
+  }
 }

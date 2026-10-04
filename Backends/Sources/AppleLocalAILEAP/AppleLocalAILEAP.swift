@@ -79,7 +79,6 @@ public struct AppleLocalAILEAPPreparedTextModel: Hashable, Sendable {
 /// receives `ModelRunner`, `Conversation`, or a downloader object.
 @available(iOS 27.0, macOS 27.0, *)
 public actor AppleLocalAILEAPRuntime {
-  private static let defaultMinimumFreeBytes: UInt64 = 128 * 1024 * 1024
   private static let contextSize: UInt32 = 4_096
   private static let cpuThreads: UInt32 = 4
   private static let warmupMaximumTokens: Int32 = 1

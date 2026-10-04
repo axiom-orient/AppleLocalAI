@@ -3,6 +3,13 @@ import Testing
 
 @testable import AppleLocalAIHost
 
+@Test(arguments: ["https://", "https:///v1"])
+func remoteConfigurationRejectsMissingHost(endpoint: String) {
+  #expect(throws: RemoteLanguageModelConfigurationError.invalidEndpoint) {
+    try RemoteLanguageModelConfiguration(endpointString: endpoint, modelName: "model")
+  }
+}
+
 @Test func remoteCredentialPolicyRejectsHeaderControlsAndOversizedValues() throws {
   #expect(try RemoteCredentialPolicy.normalized(nil) == nil)
   #expect(try RemoteCredentialPolicy.normalized("  valid-key  ") == "valid-key")

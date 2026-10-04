@@ -302,6 +302,8 @@
         assistantMessage(answer: answer)
       case .tool(let title, let detail):
         toolMessage(title: title, detail: detail)
+      case .unsupported:
+        ConversationErrorView(message: "이 대화 항목은 현재 앱에서 표시할 수 없습니다.")
       }
     }
 

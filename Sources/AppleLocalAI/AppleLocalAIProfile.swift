@@ -18,6 +18,8 @@ public typealias AppleLocalAIToolCallPreflight =
   @MainActor @Sendable (Transcript.ToolCall) async throws -> Void
 
 /// A native tool call that must be handled by the caller.
+/// Foundation Models may wrap this marker in `LanguageModelSession.ToolCallError`;
+/// inspect its `underlyingError` without treating other tool failures as handoffs.
 public struct AppleLocalAIToolHandoff: Error, Sendable {
   public let call: Transcript.ToolCall
 

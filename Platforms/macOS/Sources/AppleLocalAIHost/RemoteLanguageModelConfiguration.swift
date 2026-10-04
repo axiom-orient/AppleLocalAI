@@ -30,6 +30,7 @@ public struct RemoteLanguageModelConfiguration: Equatable, Sendable {
     guard let components = URLComponents(string: raw),
       let scheme = components.scheme?.lowercased(),
       let host = components.host?.lowercased(),
+      !host.isEmpty,
       ["http", "https"].contains(scheme),
       components.port.map({ (1...65535).contains($0) }) ?? true,
       components.user == nil,

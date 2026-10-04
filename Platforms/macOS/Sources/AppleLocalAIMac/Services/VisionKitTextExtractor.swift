@@ -35,22 +35,27 @@
         throw VisionKitTextExtractionError.unsupported
       }
 
-      let analysisTypes: ImageAnalyzer.AnalysisTypes = [.text, .machineReadableCode]
-      let analyzer = ImageAnalyzer()
-      let configuration = ImageAnalyzer.Configuration(analysisTypes)
-      let analysis = try await SecurityScopedResource.withAccess(to: url, using: resourceAccess) {
-        try await analyzer.analyze(
-          imageAt: url,
-          orientation: .up,
-          configuration: configuration
-        )
+      let transcript = try await SecurityScopedResource.withAccess(to: url, using: resourceAccess) {
+        try await Self.analyzeText(at: url)
       }
       try Task.checkCancellation()
-      let text = analysis.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+      let text = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
       guard !text.isEmpty else {
         throw VisionKitTextExtractionError.noText
       }
       return text
+    }
+
+    // VisionKit's non-Sendable configuration stays inside the analysis task.
+    // Only the file URL and resulting text cross the main-actor boundary.
+    @concurrent
+    nonisolated private static func analyzeText(at url: URL) async throws -> String {
+      try Task.checkCancellation()
+      let analyzer = ImageAnalyzer()
+      let configuration = ImageAnalyzer.Configuration([.text, .machineReadableCode])
+      return try await analyzer.analyze(
+        imageAt: url, orientation: .up, configuration: configuration
+      ).transcript
     }
   }
 
