@@ -4,3 +4,12 @@
 .DS_Store
 __pycache__/
 *.py[cod]
+
+# External model assets and generated artifacts never belong in source control.
+/models/
+/external/
+*.safetensors
+*.gguf
+*.litertlm
+*.aimodel
+*.aimodelc
