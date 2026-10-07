@@ -452,11 +452,6 @@
       set { updateSettings { $0.foundationModels.historyEntryLimit = newValue } }
     }
 
-    var foundationTranscriptPolicy: FoundationModelTranscriptPolicy {
-      get { settings.foundationModels.transcriptPolicy }
-      set { updateSettings { $0.foundationModels.transcriptPolicy = newValue } }
-    }
-
     var foundationEnableOCRTool: Bool {
       get { settings.foundationModels.enableOCRTool }
       set { updateSettings { $0.foundationModels.enableOCRTool = newValue } }
@@ -1847,7 +1842,6 @@
           maximumResponseTokens: profileSettings.maximumResponseTokens,
           reasoningLevel: profileSettings.nativeReasoningLevel,
           toolCallingMode: profileSettings.nativeToolCallingMode,
-          transcriptErrorHandlingPolicy: profileSettings.transcriptPolicy.nativeValue,
           historyPolicy: .recentEntries(profileSettings.historyEntryLimit)
         )
         let canonicalSession: AppleLocalAISession

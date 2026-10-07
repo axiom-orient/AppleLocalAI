@@ -225,7 +225,7 @@ final class SystemModel27SampleModel {
     try session.reconfigure(
       AppleLocalAIProfile(
         model: model, instructions: "Give one short sentence.", maximumResponseTokens: 96,
-        transcriptErrorHandlingPolicy: .preserveTranscript))
+      ))
     let reconfigured = try await session.respond(AppleLocalAIRequest(text: "Say goodbye."))
     try Self.requireReadable(reconfigured.content)
     guard Array(session.history.prefix(history.count)) == history else {
@@ -248,7 +248,7 @@ final class SystemModel27SampleModel {
   private func makeProfile() throws -> AppleLocalAIProfile {
     try AppleLocalAIProfile(
       model: model, instructions: "Answer briefly.", maximumResponseTokens: 96,
-      transcriptErrorHandlingPolicy: .preserveTranscript)
+    )
   }
 
   private func requireReady() throws {
@@ -334,7 +334,7 @@ struct SystemModel27Report: Encodable, Sendable {
   let startedAt = Date()
   let operatingSystem = ProcessInfo.processInfo.operatingSystemVersionString
   let provider = "Root AppleLocalAISession / Apple SystemLanguageModel.default"
-  let transcriptPolicy = "preserveTranscript; SDK default remains revertTranscript"
+  let transcriptPolicy = "preserveTranscript"
   let availabilityBefore: String
   var availabilityAtOutcome: String?
   var outcome = "RUNNING"

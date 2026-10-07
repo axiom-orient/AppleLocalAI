@@ -188,7 +188,7 @@ final class OnDemandModel {
     isLoaded = true
     let profile = try AppleLocalAIProfile(
       model: model, instructions: "Answer briefly.", maximumResponseTokens: 128,
-      transcriptErrorHandlingPolicy: .preserveTranscript)
+    )
     if let session {
       // This sample starts a fresh conversation after releasing residency.
       try session.reset(profile: profile)

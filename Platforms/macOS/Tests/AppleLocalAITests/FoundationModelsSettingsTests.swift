@@ -49,6 +49,11 @@
 
       let encoded = try JSONEncoder().encode(settings)
       #expect(try JSONDecoder().decode(FoundationModelsSettings.self, from: encoded) == settings)
+      var stored = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+      #expect(stored["transcriptPolicy"] == nil)
+      stored["transcriptPolicy"] = "revert"
+      let previous = try JSONSerialization.data(withJSONObject: stored)
+      #expect(try JSONDecoder().decode(FoundationModelsSettings.self, from: previous) == settings)
     }
 
     @Test func selectedTopKIsRejectedInsteadOfClamped() {

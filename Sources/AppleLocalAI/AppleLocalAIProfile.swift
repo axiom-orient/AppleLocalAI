@@ -31,6 +31,7 @@ public struct AppleLocalAIToolHandoff: Error, Sendable {
 /// Session configuration, not session state.
 /// Foundation Models remains the authority for transcript, tools, model execution,
 /// token usage, guided generation, and errors.
+/// Failed and cancelled turns retain their partial native transcript.
 public struct AppleLocalAIProfile: Sendable {
   private static let temperatureRange = 0.0...1.0
 
@@ -46,7 +47,6 @@ public struct AppleLocalAIProfile: Sendable {
   public let toolCallPolicy: AppleLocalAIToolCallPolicy
   /// Host-owned validation invoked from Foundation Models' native tool-call callback.
   public let toolCallPreflight: AppleLocalAIToolCallPreflight?
-  public let transcriptErrorHandlingPolicy: TranscriptErrorHandlingPolicy?
   public let historyPolicy: AppleLocalAIHistoryPolicy
   public let omitEmptyPromptFromHistory: Bool
 
@@ -61,7 +61,6 @@ public struct AppleLocalAIProfile: Sendable {
     toolCallingMode: GenerationOptions.ToolCallingMode? = nil,
     toolCallPolicy: AppleLocalAIToolCallPolicy = .execute,
     toolCallPreflight: AppleLocalAIToolCallPreflight? = nil,
-    transcriptErrorHandlingPolicy: TranscriptErrorHandlingPolicy? = .revertTranscript,
     historyPolicy: AppleLocalAIHistoryPolicy = .full,
     omitEmptyPromptFromHistory: Bool = false
   ) throws {
@@ -77,7 +76,6 @@ public struct AppleLocalAIProfile: Sendable {
       toolCallingMode: toolCallingMode,
       toolCallPolicy: toolCallPolicy,
       toolCallPreflight: toolCallPreflight,
-      transcriptErrorHandlingPolicy: transcriptErrorHandlingPolicy,
       historyPolicy: historyPolicy,
       omitEmptyPromptFromHistory: omitEmptyPromptFromHistory
     )
@@ -97,7 +95,6 @@ public struct AppleLocalAIProfile: Sendable {
     toolCallingMode: GenerationOptions.ToolCallingMode? = nil,
     toolCallPolicy: AppleLocalAIToolCallPolicy = .execute,
     toolCallPreflight: AppleLocalAIToolCallPreflight? = nil,
-    transcriptErrorHandlingPolicy: TranscriptErrorHandlingPolicy? = .revertTranscript,
     historyPolicy: AppleLocalAIHistoryPolicy = .full,
     omitEmptyPromptFromHistory: Bool = false
   ) throws {
@@ -113,7 +110,6 @@ public struct AppleLocalAIProfile: Sendable {
       toolCallingMode: toolCallingMode,
       toolCallPolicy: toolCallPolicy,
       toolCallPreflight: toolCallPreflight,
-      transcriptErrorHandlingPolicy: transcriptErrorHandlingPolicy,
       historyPolicy: historyPolicy,
       omitEmptyPromptFromHistory: omitEmptyPromptFromHistory
     )
@@ -131,7 +127,6 @@ public struct AppleLocalAIProfile: Sendable {
     toolCallingMode: GenerationOptions.ToolCallingMode?,
     toolCallPolicy: AppleLocalAIToolCallPolicy,
     toolCallPreflight: AppleLocalAIToolCallPreflight?,
-    transcriptErrorHandlingPolicy: TranscriptErrorHandlingPolicy?,
     historyPolicy: AppleLocalAIHistoryPolicy,
     omitEmptyPromptFromHistory: Bool
   ) throws {
@@ -159,7 +154,6 @@ public struct AppleLocalAIProfile: Sendable {
     self.toolCallingMode = toolCallingMode
     self.toolCallPolicy = toolCallPolicy
     self.toolCallPreflight = toolCallPreflight
-    self.transcriptErrorHandlingPolicy = transcriptErrorHandlingPolicy
     self.historyPolicy = historyPolicy
     self.omitEmptyPromptFromHistory = omitEmptyPromptFromHistory
   }

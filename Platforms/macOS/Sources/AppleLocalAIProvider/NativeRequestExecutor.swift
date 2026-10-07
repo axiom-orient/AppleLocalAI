@@ -69,7 +69,6 @@
         reasoningLevel: settings.nativeReasoningLevel,
         toolCallingMode: settings.nativeToolCallingMode,
         toolCallPolicy: .handoff,
-        transcriptErrorHandlingPolicy: .preserveTranscript,
         historyPolicy: historyPolicy,
         omitEmptyPromptFromHistory: resumingTool
       )

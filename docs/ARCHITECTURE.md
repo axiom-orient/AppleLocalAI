@@ -31,7 +31,8 @@ text·typed·dynamic schema·async consumer 스트림은 private `consumeStream`
 새 snapshot을 전달하지 않고 native stream의 종료를 기다린 뒤 admission을 해제한다.
 모든 native 요청은 같은 세션의 `isResponding == false`까지 취소되지 않은 cleanup Task를
 join한 뒤 idle로 정착한다. `isBusy`와 세션 변경 guard는 SDK 작업과 native 응답 상태를
-함께 검사한다. 이 barrier는 native transcript rollback 크래시를 고치는 정책이 아니다.
+함께 검사한다. 오류·취소 후 transcript는 native `.preserveTranscript`로 보존하며,
+되돌리기 경로를 선택하지 않는다.
 
 LiteRT의 buffered/streamed output은 공통 byte budget과 실제 기록된 bytes로 terminal
 성공 여부를 판단한다. byte/chunk 수를 token으로 해석하지 않는다. Engine cache는
@@ -66,7 +67,8 @@ prompt/tool round-trip 보존을 한 구현에 둔다. 실제 transcript는 수�
 
 `Examples/SystemModel27`은 root SDK와 `SystemLanguageModel.default`만 사용합니다.
 온디맨드 샘플은 root SDK와 독립 LEAP product를 명시적으로 선택합니다.
-샘플은 `.preserveTranscript`를 사용하며 SDK 기본 `.revertTranscript`는 유지합니다.
+모든 SDK consumer는 고정된 `.preserveTranscript` 정책을 사용합니다. 실패·취소 시
+부분 entry가 남을 수 있으며, 명시적 reset이 새 대화를 시작하는 경계입니다.
 
 `scripts/check-architecture.sh`는 package minimum과 source dependency 경계를 검사합니다.
 `scripts/verify-system-model.py`는 하나의 system consumer만 실행합니다. 새 외부 output

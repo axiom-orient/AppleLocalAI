@@ -28,6 +28,7 @@ struct AppleLocalAIRootProfile: LanguageModelSession.DynamicProfile {
       AppleLocalAIConfiguredProfile(configuration: profile)
     } else {
       LanguageModelSession.Profile { Instructions("") }
+        .transcriptErrorHandlingPolicy(.preserveTranscript)
         .onPrompt { _ in throw AppleLocalAIError.profileUnavailable }
     }
   }
@@ -56,7 +57,7 @@ struct AppleLocalAIConfiguredProfile: LanguageModelSession.DynamicProfile {
       configuration.historyPolicy.project(
         history, omitEmptyPrompt: configuration.omitEmptyPromptFromHistory)
     }
-    .transcriptErrorHandlingPolicy(configuration.transcriptErrorHandlingPolicy)
+    .transcriptErrorHandlingPolicy(.preserveTranscript)
     .onPrompt { _ in toolCallCount = 0 }
     .onToolCall { call in
       toolCallCount += 1

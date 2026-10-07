@@ -9,8 +9,7 @@ Apple이 모델 실행, 대화 기록, 도구 호출과 사용량을 소유하�
 | 선택형 로컬 모델 | iOS/macOS 27+ | [`Backends`](docs/PLATFORM_INTEGRATION.md) |
 | macOS 앱·Provider·Console | macOS 27+ | [`Platforms/macOS`](Platforms/macOS/README.md) |
 
-iOS 27 샘플은 `.preserveTranscript` 정책으로 검증했으며 SDK 기본 `.revertTranscript`의
-Simulator 취소·재사용에는 알려진 native 크래시가 있습니다.
+SDK는 실패·취소된 부분 대화 기록을 보존합니다. iOS 27에서 취소 후 같은 세션 재사용을 확인했습니다.
 현재 결과와 검증 범위는 [`VERIFICATION`](docs/VERIFICATION.md)에 있습니다.
 
 ## 설치
@@ -28,8 +27,7 @@ import FoundationModels
 func ask(_ text: String) async throws -> String {
   let profile = try AppleLocalAIProfile(
     model: SystemLanguageModel.default,
-    instructions: "Answer briefly.",
-    transcriptErrorHandlingPolicy: .preserveTranscript
+    instructions: "Answer briefly."
   )
   let session = AppleLocalAISession(profile: profile)
   return try await session.respond(AppleLocalAIRequest(text: text)).content
@@ -38,8 +36,8 @@ func ask(_ text: String) async throws -> String {
 
 대화는 같은 `AppleLocalAISession`을 재사용합니다. `cancel()` 이후에는 실행 Task가 끝나고
 `isBusy`가 false가 된 뒤 새 요청이나 설정 변경을 시작합니다. `reconfigure`는 대화 기록을
-유지하며 `reset`은 명시적으로 새 대화를 시작합니다. 위 예제는 취소된 turn을 보존하는
-정책을 선택합니다. SDK 기본 정책은 `.revertTranscript`로 유지됩니다.
+유지하며 `reset`은 명시적으로 새 대화를 시작합니다. 실패·취소된 turn과 부분 응답은
+Apple의 `.preserveTranscript` 정책으로 유지합니다. 정책 선택 인자는 제공하지 않습니다.
 
 Apple Intelligence 지원기기, 설정 활성화, 모델 다운로드 완료가 필요합니다.
 `SystemLanguageModel.default.availability`를 확인하고 실제 생성 오류도 처리해야 합니다.

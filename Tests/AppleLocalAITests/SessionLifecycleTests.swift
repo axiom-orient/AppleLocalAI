@@ -236,6 +236,11 @@ struct SessionLifecycleTests {
     let completedHistory = session.history
     try session.clearProfile()
     #expect(session.history == completedHistory)
+    await #expect(throws: AppleLocalAIError.profileUnavailable) {
+      _ = try await session.respond(AppleLocalAIRequest(text: "No active model"))
+    }
+    #expect(session.phase == .idle)
+    #expect(Array(session.history.prefix(completedHistory.count)) == completedHistory)
     try session.reset(profile: nextProfile)
     #expect(session.history.isEmpty)
   }
@@ -272,7 +277,6 @@ struct SessionLifecycleTests {
         await preflightCalls.increment()
         throw EffectError.failed
       },
-      transcriptErrorHandlingPolicy: .preserveTranscript
     )
     let session = AppleLocalAISession(profile: profile)
 

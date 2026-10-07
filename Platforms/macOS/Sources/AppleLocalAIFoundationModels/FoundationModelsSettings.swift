@@ -170,29 +170,6 @@
     }
   }
 
-  package enum FoundationModelTranscriptPolicy: String, CaseIterable, Codable, Equatable, Sendable {
-    case revert
-    case preserve
-
-    package var title: String {
-      switch self {
-      case .revert:
-        return "실패 시 되돌리기"
-      case .preserve:
-        return "실패한 transcript 보존"
-      }
-    }
-
-    package var nativeValue: TranscriptErrorHandlingPolicy {
-      switch self {
-      case .revert:
-        return .revertTranscript
-      case .preserve:
-        return .preserveTranscript
-      }
-    }
-  }
-
   package struct FoundationModelsSettings: Codable, Equatable, Sendable {
     package static let minimumRandomTopK = 1
     package static let maximumRandomTopK = 128
@@ -215,7 +192,6 @@
     package var toolCallingMode: FoundationModelToolCallingMode
     package var includeSchemaInPrompt: Bool
     package var historyEntryLimit: Int
-    package var transcriptPolicy: FoundationModelTranscriptPolicy
     package var enableOCRTool: Bool
     package var enableBarcodeReaderTool: Bool
     package var enableImageMetadataTool: Bool
@@ -236,7 +212,6 @@
       case toolCallingMode
       case includeSchemaInPrompt
       case historyEntryLimit
-      case transcriptPolicy
       case enableOCRTool
       case enableBarcodeReaderTool
       case enableImageMetadataTool
@@ -258,7 +233,6 @@
       toolCallingMode: .disallowed,
       includeSchemaInPrompt: true,
       historyEntryLimit: 48,
-      transcriptPolicy: .revert,
       enableOCRTool: false,
       enableBarcodeReaderTool: false,
       enableImageMetadataTool: false,
@@ -280,7 +254,6 @@
       toolCallingMode: FoundationModelToolCallingMode,
       includeSchemaInPrompt: Bool,
       historyEntryLimit: Int,
-      transcriptPolicy: FoundationModelTranscriptPolicy,
       enableOCRTool: Bool,
       enableBarcodeReaderTool: Bool,
       enableImageMetadataTool: Bool,
@@ -300,7 +273,6 @@
       self.toolCallingMode = toolCallingMode
       self.includeSchemaInPrompt = includeSchemaInPrompt
       self.historyEntryLimit = historyEntryLimit
-      self.transcriptPolicy = transcriptPolicy
       self.enableOCRTool = enableOCRTool
       self.enableBarcodeReaderTool = enableBarcodeReaderTool
       self.enableImageMetadataTool = enableImageMetadataTool
@@ -346,10 +318,6 @@
       historyEntryLimit =
         try container.decodeIfPresent(Int.self, forKey: .historyEntryLimit)
         ?? defaults.historyEntryLimit
-      transcriptPolicy =
-        try container.decodeIfPresent(
-          FoundationModelTranscriptPolicy.self, forKey: .transcriptPolicy)
-        ?? defaults.transcriptPolicy
       enableOCRTool =
         try container.decodeIfPresent(Bool.self, forKey: .enableOCRTool) ?? defaults.enableOCRTool
       enableBarcodeReaderTool =
@@ -379,7 +347,6 @@
       try container.encode(toolCallingMode, forKey: .toolCallingMode)
       try container.encode(includeSchemaInPrompt, forKey: .includeSchemaInPrompt)
       try container.encode(historyEntryLimit, forKey: .historyEntryLimit)
-      try container.encode(transcriptPolicy, forKey: .transcriptPolicy)
       try container.encode(enableOCRTool, forKey: .enableOCRTool)
       try container.encode(enableBarcodeReaderTool, forKey: .enableBarcodeReaderTool)
       try container.encode(enableImageMetadataTool, forKey: .enableImageMetadataTool)

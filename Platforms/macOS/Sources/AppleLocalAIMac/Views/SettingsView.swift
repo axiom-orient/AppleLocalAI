@@ -371,11 +371,7 @@
 
           Toggle("스키마를 prompt에 포함", isOn: $model.foundationIncludeSchemaInPrompt)
 
-          Picker("Transcript 오류 정책", selection: $model.foundationTranscriptPolicy) {
-            ForEach(FoundationModelTranscriptPolicy.allCases, id: \.self) { value in
-              Text(value.title).tag(value)
-            }
-          }
+          SettingsValueRow(title: "실패·중지한 대화", value: "부분 기록 보존")
 
           Divider()
 

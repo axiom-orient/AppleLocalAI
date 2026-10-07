@@ -25,8 +25,8 @@ Simulator scheme은 `GGML_METAL_DEVICES=0`으로 CPU를 사용합니다. 기기 
 
 `OnDemandModel`이 UI 작업·runtime·session을 소유합니다. 실행 UUID로 늦은 callback을
 차단하고 cancel→settle→unload 순서를 지킵니다. 대화 기록은 Apple 세션이 소유합니다.
-샘플은 `.preserveTranscript`를 명시합니다. 기본 rollback 정책의 native 오류와 최신
-실행 결과는 [VERIFICATION](../../docs/VERIFICATION.md)에 있습니다.
+SDK의 고정 `.preserveTranscript` 정책을 사용합니다. 최신 실행 결과는
+[VERIFICATION](../../docs/VERIFICATION.md)에 있습니다.
 
 Run arguments의 `--verify-on-demand`는 실제 응답·stream·취소·재사용·unload·reload를
 확인하고 앱 Documents의 `on-demand-verification.json`에 결과를 기록합니다.

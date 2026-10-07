@@ -25,11 +25,33 @@ LiteRT는 공개 [SmolLM2-135M 모델](https://huggingface.co/litert-community/S
 전체 lifecycle 검증을 뜻하지 않습니다. 기존 바이너리 헤더의 증분 빌드 오류는 공식
 build clean 후 해소했습니다. 구조 검사·runner 회귀 3개·폐기 참조 검색도 통과했습니다.
 
-## 알려진 Apple 시스템 모델 제한
+## 세션 오류 정책 (2026-10-07)
 
-2026-10-04 검증에서 macOS 시스템 모델과 iOS 27 `.preserveTranscript` 샘플은 실제
-추론을 통과했습니다. iOS 27 기본 `.revertTranscript`는 취소 후 재사용 시 native
-`Swift/Range.swift:761` 크래시가 관측됐습니다. SDK 기본 정책은 변경하지 않았습니다.
+SDK는 Apple의 [preserveTranscript](https://developer.apple.com/documentation/foundationmodels/transcripterrorhandlingpolicy/preservetranscript)
+정책만 사용합니다. public profile의 정책 선택 인자와 Mac의 rollback 설정·저장 키·Picker를
+제거했습니다. 실패·취소 후 부분 기록은 보존되며 명시적인 reset이 새 대화를 시작합니다.
+기존 Mac JSON의 나머지 설정은 유지되고, 폐기된 policy 키는 실행에 영향을 주지 않습니다.
+
+정책 인자 없는 실제 SDK consumer로 지정 iOS 27 Simulator에서 한 번 검증했습니다.
+XCTest **2/2 PASS**, 실제 응답·8개 stream snapshot·실행 중 취소·idle 정착·같은 세션
+재사용·structured 생성·profile/reset을 통과했습니다. 기존 Range 크래시는 이 실행에서
+발생하지 않았습니다. 관련 SDK 회귀 21개와 Mac settings 회귀 12개도 통과했습니다.
+
+이 변경은 native rollback을 선택하던 공개 API를 제거하는 source break입니다.
+Apple 내부 rollback 결함 자체가 수정됐다는 의미는 아닙니다. 프로젝트가 그 경로를
+선택하지 않도록 닫았습니다. 실기기 결과는 별도입니다.
+
+## 경고 범위
+
+새 system-model 실행과 root 회귀에는 자체 compiler 경고가 없습니다. AppIntents를
+사용하지 않는 두 샘플은 설치된 SwiftBuild가 지원하는 `LM_SKIP_METADATA_EXTRACTION=YES`로
+불필요한 앱 metadata 추출을 끕니다. 최종 두 consumer 빌드의 `warning:`는 **0개**이며,
+SwiftPM dependency의 “관련 App Intents 없음” 정보 출력은 경고와 구분합니다.
+
+선택 MLX 그래프의 resource-node·Metal 확장 진단, CPU LiteRT의 선택적 NPU 등록 진단,
+Simulator의 Apple framework 중복 class 메시지는 외부 구현에서 발생합니다. 실제 CPU
+검증은 통과했지만 이 메시지가 모두 제거됐다는 결과는 아닙니다. 로그를 숨기거나
+vendor cache를 수정하지 않으며, 전체 외부 경고 0은 보장하지 않습니다.
 
 과거 상세 결과는 [검증 당시 Git 이력](https://github.com/axiom-orient/AppleLocalAI/tree/1714aea0c2bfe3602878eb5dec53a64129089550/docs/verification)에 있습니다.
 현재 문서에 과거 checksum·로그 경로·결과 JSON을 복제하지 않습니다.

@@ -130,7 +130,7 @@ struct NativeSystemIntegrationTests {
         instructions:
           "Call qualificationEcho with token applelocalai-verified, then repeat its result.",
         tools: [tool], maximumResponseTokens: 128, toolCallingMode: .required,
-        transcriptErrorHandlingPolicy: .preserveTranscript)
+      )
       let toolSession = AppleLocalAISession(profile: toolProfile)
       let toolResponse = try await toolSession.respond(
         AppleLocalAIRequest(text: "Verify the token using qualificationEcho."))
@@ -145,7 +145,7 @@ struct NativeSystemIntegrationTests {
           model: SystemLanguageModel.default,
           instructions: "Call qualificationEcho with token applelocalai-verified.",
           tools: [tool], maximumResponseTokens: 128, toolCallingMode: .required,
-          toolCallPolicy: .handoff, transcriptErrorHandlingPolicy: .preserveTranscript))
+          toolCallPolicy: .handoff))
       do {
         _ = try await toolSession.respond(
           AppleLocalAIRequest(text: "Verify the token using qualificationEcho."))

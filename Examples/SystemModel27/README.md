@@ -9,9 +9,8 @@ iOS 27+·Xcode 27·Swift 6.4 toolchain용 독립 SwiftUI consumer입니다.
 Apple Intelligence 지원 기기·설정 활성화·모델 준비가 필요합니다.
 질문·실행·중지와 실제 native availability를 표시합니다. UI는 작업 Task 하나를 소유하며
 SDK phase가 idle로 정착하기 전 새 작업이나 session 교체를 허용하지 않습니다.
-이 샘플은 `.preserveTranscript`를 명시하여 중지한 turn의 native 기록을 보존합니다.
-iOS 27 Simulator에서 `.revertTranscript`의 취소·재사용 Range 크래시가 관측됐기 때문입니다.
-SDK의 기본 정책은 그대로 `.revertTranscript`이며 자동 정책 전환은 없습니다.
+SDK의 고정 `.preserveTranscript` 정책으로 중지한 turn과 부분 응답을 보존합니다.
+샘플이 별도 정책을 전달하거나 native history를 되돌리지 않습니다.
 
 Run argument `--verify-system-model27`은 같은 SDK session에서 실제 응답·stream·실행 중 취소·
 재사용·구조화 응답·profile 변경과 명시적 reset을 검증합니다.
