@@ -2,7 +2,6 @@
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 MAC="$ROOT/Platforms/macOS"
-SYSTEM="$ROOT/Compatibility/AppleLocalAISystem"
 fail() { echo "architecture: FAIL: $*" >&2; exit 1; }
 for name in AppleLocalAICore AppleLocalAI; do
 [ -d "$ROOT/Sources/$name" ] || fail "missing shared target $name"
@@ -11,11 +10,10 @@ for name in AppleLocalAILocalModels AppleLocalAILEAP; do
 [ -d "$ROOT/Backends/Sources/$name" ] || fail "missing optional target $name"
 done
 [ -f "$MAC/Package.swift" ] || fail "missing macOS package"
-[ -f "$SYSTEM/Package.swift" ] || fail "missing isolated Apple system compatibility package"
-# OS 27 composition and OS 26 system compatibility have separate package roots.
+# Every package shares the OS 27 baseline.
 while IFS= read -r manifest; do
   case "$manifest" in
-    "$ROOT/Package.swift"|"$ROOT/Backends/Package.swift"|"$ROOT/Backends/Sources/AppleLocalAILEAP/Package.swift"|"$SYSTEM/Package.swift"|"$MAC/Package.swift") ;;
+    "$ROOT/Package.swift"|"$ROOT/Backends/Package.swift"|"$ROOT/Backends/Sources/AppleLocalAILEAP/Package.swift"|"$MAC/Package.swift") ;;
     *) fail "unexpected SwiftPM manifest: ${manifest#"$ROOT"/}" ;;
   esac
 done <<EOF
@@ -28,39 +26,6 @@ for manifest in "$ROOT/Package.swift" "$ROOT/Backends/Package.swift" \
   grep -Fq '.iOS("27.0")' "$manifest" || fail "default iOS minimum must remain 27: $manifest"
   grep -Fq '.macOS("27.0")' "$manifest" || fail "default macOS minimum must remain 27: $manifest"
 done
-grep -Fq '.iOS("26.0")' "$SYSTEM/Package.swift" || fail "system compatibility must declare iOS 26"
-grep -Fq '.macOS("26.0")' "$SYSTEM/Package.swift" || fail "system compatibility must declare macOS 26"
-if grep -n -E '\.package[[:space:]]*\(|\.binaryTarget[[:space:]]*\(|\.unsafeFlags[[:space:]]*\(' "$SYSTEM/Package.swift"; then
-  fail "Apple system compatibility must not acquire package/binary dependencies or linker bypasses"
-fi
-if grep -n -E 'Compatibility|AppleLocalAISystem' "$ROOT/Package.swift" "$ROOT/Backends/Package.swift" "$MAC/Package.swift"; then
-  fail "default OS 27 graph acquired OS 26 compatibility"
-fi
-if grep -R -n -E 'import[[:space:]]+AppleLocalAISystem' "$ROOT/Sources" "$ROOT/Backends/Sources" "$MAC/Sources"; then
-  fail "default OS 27 source imports OS 26 compatibility"
-fi
-# This leaf is an Apple session factory, not a second runtime, loader, or transcript owner.
-if grep -R -n -E 'import[[:space:]]+(AppleLocalAI[A-Za-z]*|NativeAgent[A-Za-z]*|LeapSDK|CoreAI[A-Za-z]*|MLX[A-Za-z]*|LiteRT[A-Za-z]*|AppKit|SwiftUI|NIO[A-Za-z]*)|DynamicProfile|SessionProperty|LanguageModelExecutor|any[[:space:]]+LanguageModel|PrivateCloudComputeLanguageModel|Task[[:space:]]*[{<]|URLSession|FileManager|FileHandle' "$SYSTEM/Sources"; then
-  fail "OS 27, vendor, host, or independent state/effect leaked into Apple system compatibility"
-fi
-if grep -R -n -E '^[[:space:]]*(public[[:space:]]+)?(final[[:space:]]+)?(class|actor)[[:space:]]' "$SYSTEM/Sources"; then
-  fail "Apple system compatibility introduced a session/runtime state owner"
-fi
-for source in $(find "$SYSTEM/Sources" -name '*.swift' -type f); do
-  if grep -n -E '^([[:space:]]*(public|internal|private|package)[[:space:]]+)?import[[:space:]]+' "$source" \
-    | grep -v -E 'import[[:space:]]+(Foundation|FoundationModels)[[:space:]]*$'; then
-    fail "Apple system compatibility imports a non-Apple dependency: $source"
-  fi
-done
-SYSTEM_SAMPLE="$ROOT/Examples/SystemModel/project.yml"
-[ -f "$SYSTEM_SAMPLE" ] || fail "missing independent system model consumer"
-grep -Fq 'IPHONEOS_DEPLOYMENT_TARGET: "26.0"' "$SYSTEM_SAMPLE" \
-  || fail "OS 26 consumer minimum changed"
-grep -Fq 'path: ../../Compatibility/AppleLocalAISystem' "$SYSTEM_SAMPLE" \
-  || fail "system model sample must consume the compatibility leaf directly"
-if grep -n -E '^[[:space:]]*path:[[:space:]]*(\.\./\.\.|.*Backends|.*Platforms)/?[[:space:]]*$|product:[[:space:]]*(AppleLocalAI|AppleLocalAILEAP|AppleLocalAILocalModels)[[:space:]]*$' "$SYSTEM_SAMPLE"; then
-  fail "OS 26 consumer acquired OS 27 or optional native backends"
-fi
 SYSTEM27_SAMPLE="$ROOT/Examples/SystemModel27/project.yml"
 [ -f "$SYSTEM27_SAMPLE" ] || fail "missing independent OS 27 SDK consumer"
 grep -Fq 'IPHONEOS_DEPLOYMENT_TARGET: "27.0"' "$SYSTEM27_SAMPLE" \
@@ -81,7 +46,6 @@ import sys
 
 root = Path(sys.argv[1])
 for folder, name, product, package, minimum in [
-    ("SystemModel", "AppleLocalAISystemSample", "AppleLocalAISystem", "../../Compatibility/AppleLocalAISystem", "26.0"),
     ("SystemModel27", "AppleLocalAISystem27Sample", "AppleLocalAI", "../..", "27.0"),
 ]:
     path = root / "Examples" / folder / (name + ".xcodeproj") / "project.pbxproj"
@@ -94,11 +58,8 @@ for folder, name, product, package, minimum in [
     if products != [product] or packages != [package] or remote or minima != {minimum}:
         sys.exit(f"architecture: FAIL: {folder} generated project has wrong dependencies or OS minimum")
 PY
-if grep -R -n -E 'import[[:space:]]+(AppleLocalAI|AppleLocalAICore|AppleLocalAILEAP|AppleLocalAILocalModels|NativeAgent)[[:space:]]*$' "$ROOT/Examples/SystemModel/Sources"; then
-  fail "OS 26 sample imported OS 27 or vendor code"
-fi
-if grep -R -n -E 'import[[:space:]]+(AppleLocalAISystem|AppleLocalAILEAP|AppleLocalAILocalModels|NativeAgent)[[:space:]]*$' "$ROOT/Examples/SystemModel27/Sources"; then
-  fail "OS 27 sample imported OS 26 or vendor code"
+if grep -R -n -E 'import[[:space:]]+(AppleLocalAILEAP|AppleLocalAILocalModels|NativeAgent)[[:space:]]*$' "$ROOT/Examples/SystemModel27/Sources"; then
+  fail "system consumer imported optional runtime code"
 fi
 [ ! -e "$MAC/script/check-architecture.sh" ] || fail "retired macOS architecture wrapper was reintroduced"
 [ ! -e "$MAC/script/evaluate.sh" ] || fail "retired evaluation wrapper was reintroduced"

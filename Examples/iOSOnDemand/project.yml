@@ -39,10 +39,6 @@ targets:
         product: AppleLocalAI
       - package: AppleLocalAILEAP
         product: AppleLocalAILEAP
-    postBuildScripts:
-      - path: ../../scripts/sign-leap-embedded.sh
-        name: Sign embedded LEAP libraries
-        basedOnDependencyAnalysis: false
   AppleLocalAIOnDemandSampleTests:
     type: bundle.unit-test
     platform: iOS

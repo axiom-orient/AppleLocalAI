@@ -438,7 +438,7 @@
       GenerationOptions(
         samplingMode: nativeSamplingMode,
         temperature: temperature,
-        maximumResponseTokens: nativeMaximumResponseTokens,
+        maximumResponseTokens: maximumResponseTokens,
         toolCallingMode: nativeToolCallingMode
       )
     }
@@ -454,10 +454,6 @@
       reasoningLevel.nativeValue(customText: customReasoningLevel)
     }
 
-    package var nativeHistoryEntryLimit: Int { historyEntryLimit }
-
-    package var nativeMaximumResponseTokens: Int? { maximumResponseTokens }
-
     package var enabledToolCount: Int {
       [enableOCRTool, enableBarcodeReaderTool, enableImageMetadataTool, enableSpotlightSearchTool]
         .filter { $0 }
@@ -465,10 +461,7 @@
     }
 
     package var nativeToolCallingMode: GenerationOptions.ToolCallingMode? {
-      guard toolCallingMode != .disallowed || enabledToolCount > 0 else {
-        return .disallowed
-      }
-      return toolCallingMode.nativeValue
+      toolCallingMode.nativeValue
     }
 
   }

@@ -198,9 +198,9 @@ struct RequestIsolationTests {
 
   @Test func liteRTPathNormalizationMatchesTheRuntimeFactoryBoundary() throws {
     #expect(
-      NativeModelResourcePolicy.normalizedLiteRTModelPath(
+      LocalModelResourceIdentity.normalizedFilePath(
         "  /tmp/model.litertlm\n") == "/tmp/model.litertlm")
-    #expect(NativeModelResourcePolicy.normalizedLiteRTModelPath(" \n\t") == "")
+    #expect(LocalModelResourceIdentity.normalizedFilePath(" \n\t") == "")
 
     let root = FileManager.default.temporaryDirectory
       .appendingPathComponent("AppleLocalAI-LiteRT-Identity-" + UUID().uuidString)
@@ -210,14 +210,14 @@ struct RequestIsolationTests {
     try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
     try Data("model".utf8).write(to: target)
     try FileManager.default.createSymbolicLink(at: link, withDestinationURL: target)
-    #expect(NativeModelResourcePolicy.normalizedLiteRTModelPath(link.path) == target.path)
+    #expect(LocalModelResourceIdentity.normalizedFilePath(link.path) == target.path)
   }
 
   @Test func mlxPathNormalizationMatchesTheRuntimeFactoryBoundary() throws {
     #expect(
-      NativeModelResourcePolicy.normalizedMLXModelPath(
+      LocalModelResourceIdentity.normalizedDirectoryPath(
         "  /tmp/model-directory\n") == "/tmp/model-directory")
-    #expect(NativeModelResourcePolicy.normalizedMLXModelPath(" \n\t") == "")
+    #expect(LocalModelResourceIdentity.normalizedDirectoryPath(" \n\t") == "")
 
     let root = FileManager.default.temporaryDirectory
       .appendingPathComponent("AppleLocalAI-MLX-Identity-" + UUID().uuidString)
@@ -226,7 +226,7 @@ struct RequestIsolationTests {
     defer { try? FileManager.default.removeItem(at: root) }
     try FileManager.default.createDirectory(at: target, withIntermediateDirectories: true)
     try FileManager.default.createSymbolicLink(at: link, withDestinationURL: target)
-    #expect(NativeModelResourcePolicy.normalizedMLXModelPath(link.path) == target.path)
+    #expect(LocalModelResourceIdentity.normalizedDirectoryPath(link.path) == target.path)
   }
 
   @Test func targetProviderToolsDoNotUseTheCurrentlyDisplayedProvider() throws {

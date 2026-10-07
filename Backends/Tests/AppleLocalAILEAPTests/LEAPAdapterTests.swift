@@ -26,7 +26,7 @@ private struct StructuredAnswer {
   #expect(model.byteCount == 149_080_928)
   #expect(model.sha256.count == 64)
   #expect(model.remoteURL.absoluteString.contains(model.revision))
-  #expect(AppleLocalAILEAP.leapSDKVersion == "0.10.13-SNAPSHOT")
+  #expect(AppleLocalAILEAP.leapSDKVersion == "0.11.0-SNAPSHOT")
 }
 
 @Test func pinsTheVersionMatchedAudioBundle() {

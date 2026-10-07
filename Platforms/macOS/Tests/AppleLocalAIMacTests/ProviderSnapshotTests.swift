@@ -1,3 +1,4 @@
+import AppleLocalAIFoundationModels
 import Foundation
 import FoundationModels
 import Testing
@@ -39,13 +40,13 @@ struct ProviderSnapshotTests {
     try FileManager.default.createDirectory(at: second, withIntermediateDirectories: true)
     try FileManager.default.createSymbolicLink(at: current, withDestinationURL: first)
 
-    let loadedIdentity = NativeModelResourcePolicy.normalizedCoreAIModelPath(current.path)
-    #expect(loadedIdentity == NativeModelResourcePolicy.normalizedCoreAIModelPath(first.path))
+    let loadedIdentity = LocalModelResourceIdentity.normalizedDirectoryPath(current.path)
+    #expect(loadedIdentity == LocalModelResourceIdentity.normalizedDirectoryPath(first.path))
 
     try FileManager.default.removeItem(at: current)
     try FileManager.default.createSymbolicLink(at: current, withDestinationURL: second)
     #expect(
-      loadedIdentity != NativeModelResourcePolicy.normalizedCoreAIModelPath(current.path))
+      loadedIdentity != LocalModelResourceIdentity.normalizedDirectoryPath(current.path))
   }
 
   @Test func everyProviderIsDirectlySelectableFromOneAuthority() {

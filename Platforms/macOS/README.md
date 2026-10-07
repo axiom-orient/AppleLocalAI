@@ -49,7 +49,6 @@ graph를 구성할 수 있으므로 장비 여유가 있는 native qualification
 | normative product contract | [`docs/SPEC.md`](docs/SPEC.md) |
 | HTTP/Wire contract | [`docs/PROVIDER_CONTRACT.md`](docs/PROVIDER_CONTRACT.md) |
 | development commands | [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) |
-| qualification gates | [`docs/PLAN.md`](docs/PLAN.md) |
 | execution evidence | [`../../docs/VERIFICATION.md`](../../docs/VERIFICATION.md) |
 | packaging/signing | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) |
 

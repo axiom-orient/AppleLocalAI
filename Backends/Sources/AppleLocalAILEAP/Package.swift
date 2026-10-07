@@ -10,15 +10,22 @@ let package = Package(
   targets: [
     .target(
       name: "AppleLocalAILEAP",
-      dependencies: ["LeapSDK"],
+      dependencies: ["LeapSDK", "inference_engine"],
       path: ".",
       exclude: ["Package.swift", "README.md"]
+    ),
+    // Keep the engine separate so Xcode embeds and signs it for the consumer.
+    .binaryTarget(
+      name: "inference_engine",
+      url:
+        "https://github.com/Liquid4All/leap-sdk/releases/download/v0.11.0-SNAPSHOT/inference_engine.xcframework.zip",
+      checksum: "bd8f4ca176afc87713f48d49e24301090882e8a10761b476ebcf8ee2cced2ba2"
     ),
     .binaryTarget(
       name: "LeapSDK",
       url:
-        "https://github.com/Liquid4All/leap-sdk/releases/download/v0.10.13-SNAPSHOT/LeapSDK.xcframework.zip",
-      checksum: "99abbed6967de43dfa2b3ad03350f4146bf9ab9194a2fbc719d239066e6becc3"
+        "https://github.com/Liquid4All/leap-sdk/releases/download/v0.11.0-SNAPSHOT/LeapSDK.xcframework.zip",
+      checksum: "f837346f81c73ac9f72e5cb115a9b4087a9155ae743cdc365b702361414343ac"
     ),
   ],
   swiftLanguageModes: [.v6]

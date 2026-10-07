@@ -65,7 +65,7 @@
         tools: schemas.tools,
         temperature: settings.temperature,
         samplingMode: settings.nativeSamplingMode,
-        maximumResponseTokens: settings.nativeMaximumResponseTokens,
+        maximumResponseTokens: settings.maximumResponseTokens,
         reasoningLevel: settings.nativeReasoningLevel,
         toolCallingMode: settings.nativeToolCallingMode,
         toolCallPolicy: .handoff,

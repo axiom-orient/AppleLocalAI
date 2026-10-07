@@ -71,7 +71,7 @@
 
     func loadCoreAIModel() {
       guard !isBusy, !coreAILoading else { return }
-      let modelPath = NativeModelResourcePolicy.normalizedCoreAIModelPath(coreAIModelPath)
+      let modelPath = LocalModelResourceIdentity.normalizedDirectoryPath(coreAIModelPath)
       guard !modelPath.isEmpty else { return }
 
       cancelConfigurationReset()
@@ -107,7 +107,7 @@
     private var coreAIModelMatchesConfiguredPath: Bool {
       guard coreAIModel != nil, let loadedCoreAIModelPath else { return false }
       return loadedCoreAIModelPath
-        == NativeModelResourcePolicy.normalizedCoreAIModelPath(coreAIModelPath)
+        == LocalModelResourceIdentity.normalizedDirectoryPath(coreAIModelPath)
     }
 
     private func cancelCoreAILoad() {
@@ -891,7 +891,7 @@
 
     var foundationTranscriptLabel: String {
       String(transcriptEntryCount) + "개 항목 · 기본 "
-        + String(settings.foundationModels.nativeHistoryEntryLimit) + "개 · 도구 턴 보존"
+        + String(settings.foundationModels.historyEntryLimit) + "개 · 도구 턴 보존"
     }
 
     var feedbackLabel: String? {
@@ -922,7 +922,7 @@
     }
 
     var mlxModelPathIsValid: Bool {
-      let path = NativeModelResourcePolicy.normalizedMLXModelPath(mlxModelPath)
+      let path = LocalModelResourceIdentity.normalizedDirectoryPath(mlxModelPath)
       guard !path.isEmpty else { return false }
       let directory = URL(fileURLWithPath: path, isDirectory: true)
       return LocalModelAsset.isMLXModelDirectory(at: directory)
@@ -933,7 +933,7 @@
     }
 
     var liteRTModelPathIsValid: Bool {
-      let path = NativeModelResourcePolicy.normalizedLiteRTModelPath(liteRTModelPath)
+      let path = LocalModelResourceIdentity.normalizedFilePath(liteRTModelPath)
       guard !path.isEmpty,
         URL(fileURLWithPath: path).pathExtension.lowercased() == "litertlm"
       else {
@@ -1337,7 +1337,7 @@
         settings.liteRT.visionBackend != .disabled,
         LiteRTModelInspector.capabilities(
           for: URL(
-            fileURLWithPath: NativeModelResourcePolicy.normalizedLiteRTModelPath(
+            fileURLWithPath: LocalModelResourceIdentity.normalizedFilePath(
               settings.liteRT.modelPath))
         )?.supportsVision
           != true
@@ -1452,7 +1452,7 @@
     }
 
     private var mlxCapabilityList: [LanguageModelCapabilities.Capability] {
-      mlxCapabilityList(for: NativeModelResourcePolicy.normalizedMLXModelPath(mlxModelPath))
+      mlxCapabilityList(for: LocalModelResourceIdentity.normalizedDirectoryPath(mlxModelPath))
     }
 
     private func mlxCapabilityList(for modelPath: String)
@@ -1734,9 +1734,9 @@
     ) {
       guard lifecycle == .running(operation), self.session === session else { return }
       transcriptEntryCount = transcriptEntries
-      // LiteRT-LM 0.17.1 does not expose per-request measured token usage through
-      // its Swift streaming API. Its Foundation Models bridge uses synthetic
-      // append counts, so those values must not become application usage state.
+      // LiteRT exact counts require optional benchmark collection. This app
+      // does not enable that global flag, and stream chunks are not tokens,
+      // so unavailable measurements must not become application usage state.
       guard lastSelection?.id != .liteRT else {
         usageSnapshot = FoundationModelsUsageSnapshot()
         return
@@ -1844,11 +1844,11 @@
           tools: tools,
           temperature: profileSettings.temperature,
           samplingMode: profileSettings.nativeSamplingMode,
-          maximumResponseTokens: profileSettings.nativeMaximumResponseTokens,
+          maximumResponseTokens: profileSettings.maximumResponseTokens,
           reasoningLevel: profileSettings.nativeReasoningLevel,
           toolCallingMode: profileSettings.nativeToolCallingMode,
           transcriptErrorHandlingPolicy: profileSettings.transcriptPolicy.nativeValue,
-          historyPolicy: .recentEntries(profileSettings.nativeHistoryEntryLimit)
+          historyPolicy: .recentEntries(profileSettings.historyEntryLimit)
         )
         let canonicalSession: AppleLocalAISession
         if let session {

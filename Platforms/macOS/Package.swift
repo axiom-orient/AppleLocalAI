@@ -22,15 +22,15 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/ml-explore/mlx-swift-lm",
-      revision: "c6446cf7bfb7cea76408013b614d4b2c530eaa03"),
-    .package(url: "https://github.com/apple/swift-nio", exact: "2.101.3"),
+      exact: "3.32.3"),
+    .package(url: "https://github.com/apple/swift-nio", exact: "2.104.0"),
     .package(
       url: "https://github.com/apple/coreai-models",
-      revision: "7359dbcf6c3babb4fbfadfd015ffcc1cb6d87420"
+      exact: "1.0.0"
     ),
     .package(
       url: "https://github.com/apple/foundation-models-utilities",
-      revision: "2aa12937e30d310687f40fc470ea35495816c9a4"
+      revision: "cc3820def1fe016bc6cd49d958cd2f2a29be76a8"
     ),
   ],
   targets: [

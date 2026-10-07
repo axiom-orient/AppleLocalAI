@@ -7,7 +7,7 @@ private let leapRuntimeLogger = Logger(subsystem: "AppleLocalAI", category: "LEA
 /// The official LEAP binary version used by this package.
 @available(iOS 27.0, macOS 27.0, *)
 public enum AppleLocalAILEAP {
-  public static let leapSDKVersion = "0.10.13-SNAPSHOT"
+  public static let leapSDKVersion = "0.11.0-SNAPSHOT"
 }
 
 /// Exact model artifacts supported by the direct AppleLocalAI LEAP adapter.

@@ -42,11 +42,11 @@ public enum LocalModelAssetAdmission {
       else { throw AdmissionError.invalidLiteRT }
 
     case .coreAI:
-      let language = try LanguageBundle(at: url)
-      try language.bundle.verify()
+      let language = try LanguageModelBundle(at: url)
+      try language.modelBundle.verifyAssetsExisting()
       let root = url.standardizedFileURL.resolvingSymlinksInPath()
-      for key in language.componentKeys {
-        let component = try language.requireModelURL(for: key)
+      for key in language.modelBundle.componentKeys {
+        let component = try language.modelBundle.requireModelURL(for: key)
           .standardizedFileURL.resolvingSymlinksInPath()
         guard ManagedModelAssetStore.isContained(component, in: root), component != root else {
           throw AdmissionError.escapingAssetPath(key)

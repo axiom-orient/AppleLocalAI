@@ -6,7 +6,7 @@ package로 추가하고 `AppleLocalAILEAP` product를 선택합니다. 세션 co
 필요하면 저장소 루트의 `AppleLocalAI` product도 추가합니다.
 
 이 manifest는 aggregate `Backends`와 **동일한 소스**를 사용하며 체크섬으로 고정한
-`LeapSDK` binary만 의존합니다. Core AI·MLX·LiteRT 다운로드나 별도 모델 서버가
+`LeapSDK`와 별도 `inference_engine` binary만 의존합니다. Core AI·MLX·LiteRT 다운로드나 별도 모델 서버가
 필요하지 않습니다. 모델은 처음 `prepareTextModel`을 호출할 때 내려받습니다.
 
 ```swift

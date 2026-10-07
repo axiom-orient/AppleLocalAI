@@ -25,6 +25,49 @@ import Testing
   }
 }
 
+// Storage admission only: these bytes are not executable model weights.
+@Test(arguments: ["local", "missing-tokenizer", "remote-tokenizer", "escaping-model"])
+func coreAIAdmissionRequiresContainedAssetsAndEmbeddedTokenizer(_ scenario: String) throws {
+  try withTemporaryDirectory { root in
+    let bundle = root.appendingPathComponent("bundle", isDirectory: true)
+    try FileManager.default.createDirectory(at: bundle, withIntermediateDirectories: false)
+    let embedded = scenario != "remote-tokenizer"
+    let metadata = """
+      {"metadata_version":"0.2","kind":"llm","name":"admission-fixture",
+       "assets":{"main":"model.aimodel"},
+       "language":{"tokenizer":"fixture/local-only","vocab_size":100,
+                   "max_context_length":512,"embedded_tokenizer":\(embedded)}}
+      """
+    try Data(metadata.utf8).write(to: bundle.appendingPathComponent("metadata.json"))
+    let model = bundle.appendingPathComponent("model.aimodel")
+    if scenario == "escaping-model" {
+      let outside = root.appendingPathComponent("outside.aimodel")
+      try Data([1]).write(to: outside)
+      try FileManager.default.createSymbolicLink(at: model, withDestinationURL: outside)
+    } else {
+      try Data([1]).write(to: model)
+    }
+    if scenario != "missing-tokenizer" {
+      let tokenizer = bundle.appendingPathComponent("tokenizer", isDirectory: true)
+      try FileManager.default.createDirectory(at: tokenizer, withIntermediateDirectories: false)
+      try Data("{}".utf8).write(to: tokenizer.appendingPathComponent("tokenizer.json"))
+    }
+    do {
+      try LocalModelAssetAdmission.validate(bundle, as: .coreAI)
+      #expect(scenario == "local")
+    } catch let error as LocalModelAssetAdmission.AdmissionError {
+      switch error {
+      case .missingEmbeddedTokenizer:
+        #expect(scenario == "missing-tokenizer" || scenario == "remote-tokenizer")
+      case .escapingAssetPath(let key):
+        #expect(scenario == "escaping-model" && key == "main")
+      default:
+        Issue.record("Unexpected Core AI admission error: \(error)")
+      }
+    }
+  }
+}
+
 @Test func importCopiesAnImmutableAssetAndRoundTripsItsRelativeIdentity() throws {
   try withTemporaryDirectory { root in
     let source = root.appendingPathComponent("model.litertlm")

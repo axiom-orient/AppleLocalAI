@@ -17,7 +17,8 @@ public enum LiteRTModelInspector {
     let url = LocalModelAsset.canonicalURL(for: modelURL)
     guard LocalModelAsset.isReadableFile(at: url, extension: "litertlm"),
       LocalModelFileFormat.inspect(url) == .liteRT,
-      let file = Capabilities(modelPath: url.path)
+      let file = ModelInfo(modelPath: url.path),
+      let llm = file.llm
     else { return nil }
 
     let budget = file.maxVisionTokenBudget()
@@ -26,8 +27,8 @@ public enum LiteRTModelInspector {
       supportsVision: file.inputModalities.vision,
       supportsAudio: file.inputModalities.audio,
       supportsVideo: file.inputModalities.video,
-      supportsThinking: file.supportsThinking(),
-      supportsFunctionCalling: file.supportsFunctionCalling(),
+      supportsThinking: llm.supportsThinking(),
+      supportsFunctionCalling: llm.supportsFunctionCalling(),
       maximumVisionTokenBudget: budget >= 0 ? budget : nil
     )
   }

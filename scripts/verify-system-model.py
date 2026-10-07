@@ -11,14 +11,10 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONSUMERS = {
-    26: ("Examples/SystemModel/AppleLocalAISystemSample.xcodeproj",
-         "AppleLocalAISystemSample", "APPLE_LOCAL_AI_SYSTEM_INFERENCE_TESTS=1",
-         "SystemModelSampleTests/testOptInActualSystemInference()"),
-    27: ("Examples/SystemModel27/AppleLocalAISystem27Sample.xcodeproj",
-         "AppleLocalAISystem27Sample", "APPLE_LOCAL_AI_SYSTEM27_INFERENCE_TESTS=1",
-         "SystemModel27SampleTests/actualLifecycle()"),
-}
+PROJECT = "Examples/SystemModel27/AppleLocalAISystem27Sample.xcodeproj"
+SCHEME = "AppleLocalAISystem27Sample"
+OPT_IN = "APPLE_LOCAL_AI_SYSTEM27_INFERENCE_TESTS=1"
+INFERENCE_TEST = "SystemModel27SampleTests/actualLifecycle()"
 
 
 def read(command, environment):
@@ -27,18 +23,6 @@ def read(command, environment):
 
 def major(version):
     return int(version.split(".", 1)[0])
-
-
-def inspect_ios26_sdk(path):
-    root = path.expanduser().resolve()
-    metadata = json.loads((root / "SDKSettings.json").read_text())
-    version = metadata["Version"]
-    if major(version) != 26 or not metadata["CanonicalName"].startswith("iphonesimulator"):
-        raise ValueError("--sdk-root requires a genuine iOS 26 Simulator SDK, not a Mac/device SDK.")
-    framework = root / "System/Library/Frameworks/FoundationModels.framework"
-    if not framework.exists():
-        raise ValueError("Selected iOS 26 SDK has no FoundationModels framework.")
-    return root, metadata
 
 
 def inference_results(nodes, identifier):
@@ -50,8 +34,8 @@ def inference_results(nodes, identifier):
     return results
 
 
-def source_identity(os_version, project):
-    package = ROOT / "Compatibility/AppleLocalAISystem" if os_version == 26 else ROOT
+def source_identity(project):
+    package = ROOT
     consumer = (ROOT / project).parent
     files = {package / "Package.swift", ROOT / project / "project.pbxproj",
              consumer / "project.yml", Path(__file__).resolve()}
@@ -64,17 +48,12 @@ def source_identity(os_version, project):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--os", required=True, type=int, choices=CONSUMERS)
     parser.add_argument("--simulator", required=True, help="Exact Simulator UDID")
     parser.add_argument("--developer-dir", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path,
                         help="New evidence/build directory outside the repository")
     parser.add_argument("--check-only", action="store_true")
-    parser.add_argument("--sdk-root", type=Path,
-                        help="OS 26 only: original iPhoneSimulator SDK from an official Xcode bundle")
     args = parser.parse_args()
-    if args.sdk_root and args.os != 26:
-        parser.error("--sdk-root is restricted to the isolated OS 26 experiment.")
     output = args.output.expanduser().resolve()
     if output == ROOT or ROOT in output.parents:
         parser.error("Evidence and builds must be outside the source repository.")
@@ -82,7 +61,7 @@ def main():
         output.mkdir(parents=True, exist_ok=False)
     except OSError as error:
         parser.error(f"Use a new output directory to preserve existing evidence: {error}")
-    report = {"requestedOS": args.os, "simulator": args.simulator,
+    report = {"minimumOS": 27, "simulator": args.simulator,
               "developerDirectory": str(args.developer_dir),
               "outcome": "NOT_RUN_ENVIRONMENT", "inferenceRequested": False,
               "inferenceVerified": False}
@@ -99,34 +78,24 @@ def main():
         report["xcode"] = read(["/usr/bin/xcrun", "xcodebuild", "-version"], environment)
         report["swift"] = read(["/usr/bin/xcrun", "swift", "--version"], environment)
         sdk = read(["/usr/bin/xcrun", "--sdk", "iphonesimulator", "--show-sdk-version"], environment)
-        sdk_root = None
-        if args.sdk_root:
-            sdk_root, sdk_metadata = inspect_ios26_sdk(args.sdk_root)
-            report["driverSDK"] = sdk
-            report["selectedSDKRoot"] = str(sdk_root)
-            report["selectedSDKMetadata"] = sdk_metadata
-            sdk = sdk_metadata["Version"]
         report["sdk"] = sdk
-        if major(sdk) < args.os:
-            raise ValueError(f"SDK {sdk} cannot build the OS {args.os} consumer.")
+        if major(sdk) < 27:
+            raise ValueError(f"SDK {sdk} cannot build the OS 27 consumer.")
         devices = json.loads(read(["/usr/bin/xcrun", "simctl", "list", "devices", "available", "--json"], environment))
         runtime_id = next((key for key, items in devices["devices"].items()
                            if any(item["udid"] == args.simulator for item in items)), None)
         runtimes = json.loads(read(["/usr/bin/xcrun", "simctl", "list", "runtimes", "--json"], environment))
         runtime = next((item for item in runtimes["runtimes"]
                         if item["identifier"] == runtime_id and item["isAvailable"]), None)
-        if runtime is None or major(runtime["version"]) != args.os:
-            raise ValueError("Selected Simulator is unavailable or belongs to a different OS consumer.")
+        if runtime is None or major(runtime["version"]) < 27:
+            raise ValueError("Selected Simulator is unavailable or below OS 27.")
         report["runtime"] = runtime["version"]
         report["runtimeIdentifier"] = runtime_id
-        report["hostRuntimeMajorMismatch"] = major(host) != args.os
-        # Host metadata is diagnostic. Only real native inference can qualify a
-        # mixed-version combination; a mismatch is neither success nor a veto.
-        project, scheme, opt_in, inference_test = CONSUMERS[args.os]
+        project, scheme, opt_in, inference_test = PROJECT, SCHEME, OPT_IN, INFERENCE_TEST
         report["project"] = project
         if not (ROOT / project).exists():
-            raise ValueError(f"Missing isolated OS {args.os} consumer project.")
-        report["sourceSHA256"] = source_identity(args.os, project)
+            raise ValueError("Missing system-model consumer project.")
+        report["sourceSHA256"] = source_identity(project)
     except (OSError, subprocess.CalledProcessError, ValueError, KeyError) as error:
         report["error"] = str(error)
         save()
@@ -143,10 +112,6 @@ def main():
                "-scheme", scheme, "-destination", f"platform=iOS Simulator,id={args.simulator}",
                "-derivedDataPath", str(output / "DerivedData"), "-resultBundlePath", str(result_bundle),
                "-parallel-testing-enabled", "NO", "ARCHS=arm64", "ONLY_ACTIVE_ARCH=YES", opt_in]
-    if sdk_root is not None:
-        # Public SDKROOT selects the original headers/link libraries; never edit
-        # a platform plist or forge the resulting binary's SDK metadata.
-        command.append(f"SDKROOT={sdk_root}")
     report["command"] = command
     report["outcome"] = "RUNNING"
     report["inferenceRequested"] = True

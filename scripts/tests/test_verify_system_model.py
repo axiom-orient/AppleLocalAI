@@ -23,27 +23,22 @@ class RunnerContractTests(unittest.TestCase):
             sentinel = output / "native-test.log"
             sentinel.write_bytes(b"original evidence\n")
             result = subprocess.run(
-                [sys.executable, str(RUNNER), "--os", "26", "--simulator",
-                 "B462783D-86CD-46ED-8C12-E147F20A65C1", "--developer-dir",
+                [sys.executable, str(RUNNER), "--simulator",
+                 "6F7E3B30-7343-4290-8F67-399ED0A20EBC", "--developer-dir",
                  str(Path(directory) / "unused-xcode"), "--output", str(output),
                  "--check-only"], capture_output=True, text=True, check=False)
             self.assertEqual(result.returncode, 2)
             self.assertEqual(sentinel.read_bytes(), b"original evidence\n")
             self.assertEqual(sorted(path.name for path in output.iterdir()), ["native-test.log"])
 
-    def test_source_identity_keeps_consumers_separate(self):
-        for version, (project, *_) in runner.CONSUMERS.items():
-            with self.subTest(version=version):
-                records = runner.source_identity(version, project)
-                self.assertTrue(records)
-                self.assertTrue(all(len(value) == 64 for value in records.values()))
-                self.assertFalse(any(path.startswith("Backends/") for path in records))
-                if version == 26:
-                    self.assertIn("Compatibility/AppleLocalAISystem/Package.swift", records)
-                    self.assertFalse(any(path.startswith("Sources/") for path in records))
-                else:
-                    self.assertIn("Package.swift", records)
-                    self.assertFalse(any(path.startswith("Compatibility/") for path in records))
+    def test_source_identity_records_the_sdk_and_system_consumer(self):
+        records = runner.source_identity(runner.PROJECT)
+        self.assertTrue(records)
+        self.assertTrue(all(len(value) == 64 for value in records.values()))
+        self.assertIn("Package.swift", records)
+        self.assertTrue(any(path.startswith("Sources/") for path in records))
+        self.assertTrue(any(path.startswith("Examples/SystemModel27/") for path in records))
+        self.assertFalse(any(path.startswith("Backends/") for path in records))
 
     def test_only_the_requested_test_result_is_collected(self):
         identifier = "nativeInference()"

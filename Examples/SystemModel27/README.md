@@ -3,7 +3,7 @@
 iOS 27+·Xcode 27·Swift 6.4 toolchain용 독립 SwiftUI consumer입니다.
 루트 `AppleLocalAI` product만 참조하고, 실제 `AppleLocalAISession`·`AppleLocalAIProfile`에
 `SystemLanguageModel.default`를 연결합니다. 모델·대화 기록은 Apple native session이 소유합니다.
-OS 26 compatibility package나 optional backend는 의존성에 포함하지 않습니다.
+선택 backend는 의존성에 포함하지 않습니다.
 
 `AppleLocalAISystem27Sample.xcodeproj`의 `AppleLocalAISystem27Sample` scheme을 엽니다.
 Apple Intelligence 지원 기기·설정 활성화·모델 준비가 필요합니다.
@@ -29,7 +29,7 @@ build setting으로 활성화합니다. tests는 앱의 동일 visible verificat
 활성화된 실제 추론 테스트에서 unavailable·safety·출력 제한·취소 미관측 오류는 성공이나 skip으로 바꾸지 않습니다.
 현재 실행 증거와 정책별 제한은 [검증 기록](../../docs/VERIFICATION.md)에 있습니다.
 
-저장소 root에서 `scripts/verify-system-model.py --os 27 --simulator <27-UDID>`에
+저장소 root에서 `scripts/verify-system-model.py --simulator <27-UDID>`에
 명시한 `--developer-dir`과 새 외부 `--output` 디렉터리를 전달하면 이 프로젝트만 검증합니다.
 
 프로젝트 설정 변경 시 이 디렉터리에서 `xcodegen generate`를 실행합니다.

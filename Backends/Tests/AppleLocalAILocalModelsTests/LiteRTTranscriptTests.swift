@@ -168,7 +168,7 @@ private struct LiteRTToolArguments {
   let plan = try LiteRTTranscriptPlanner.make(from: transcript, schemaJSON: nil, tools: [])
   #expect(plan.systemMessage?.toString == "Be concise.")
   #expect(plan.history.map(\.toString) == ["Earlier question", "Earlier answer"])
-  #expect(plan.history.map(\.role.rawValue) == ["user", "model"])
+  #expect(plan.history.map(\.role.rawValue) == ["user", "assistant"])
   #expect(plan.prompt.toString == "Current question")
 }
 
@@ -232,7 +232,7 @@ private struct LiteRTToolArguments {
     .prompt(.init(segments: [.text(.init(content: "Explain that answer"))])),
   ])
   let plan = try LiteRTTranscriptPlanner.make(from: transcript, schemaJSON: nil, tools: [])
-  #expect(plan.history.map(\.role.rawValue) == ["user", "model"])
+  #expect(plan.history.map(\.role.rawValue) == ["user", "assistant"])
   #expect(plan.history.last?.toString == generated.jsonString)
   #expect(plan.prompt.toString == "Explain that answer")
 }

@@ -13,17 +13,16 @@ let package = Package(
     .package(name: "AppleLocalAI", path: ".."),
     .package(
       url: "https://github.com/apple/coreai-models",
-      revision: "7359dbcf6c3babb4fbfadfd015ffcc1cb6d87420"
+      exact: "1.0.0"
     ),
     .package(
       url: "https://github.com/ml-explore/mlx-swift-lm",
-      revision: "c6446cf7bfb7cea76408013b614d4b2c530eaa03"
+      exact: "3.32.3"
     ),
-    // Xcode 27's iOS Metal compiler requires the thread address-space fixes
-    // present after the 0.31.6 tag.
+    // This stable release includes the iOS Metal thread address-space fixes.
     .package(
       url: "https://github.com/ml-explore/mlx-swift",
-      revision: "901941965d82e4a216d4d117231d847d194c563d"
+      exact: "0.32.3"
     ),
     .package(
       url: "https://github.com/huggingface/swift-transformers",
@@ -31,7 +30,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google-ai-edge/LiteRT-LM",
-      exact: "0.17.1"
+      exact: "0.18.0"
     ),
   ],
   targets: [
@@ -51,18 +50,23 @@ let package = Package(
     ),
     .target(
       name: "AppleLocalAILEAP",
-      dependencies: [
-        "LeapSDK"
-      ],
+      dependencies: ["LeapSDK", "inference_engine"],
       exclude: ["Package.swift", "README.md"]
     ),
     // Keep the native boundary explicit: AppleLocalAILEAP owns the Swift
     // lifecycle and downloads, while this is the only third-party LEAP seam.
+    // Keep the engine separate so Xcode embeds and signs it for the consumer.
+    .binaryTarget(
+      name: "inference_engine",
+      url:
+        "https://github.com/Liquid4All/leap-sdk/releases/download/v0.11.0-SNAPSHOT/inference_engine.xcframework.zip",
+      checksum: "bd8f4ca176afc87713f48d49e24301090882e8a10761b476ebcf8ee2cced2ba2"
+    ),
     .binaryTarget(
       name: "LeapSDK",
       url:
-        "https://github.com/Liquid4All/leap-sdk/releases/download/v0.10.13-SNAPSHOT/LeapSDK.xcframework.zip",
-      checksum: "99abbed6967de43dfa2b3ad03350f4146bf9ab9194a2fbc719d239066e6becc3"
+        "https://github.com/Liquid4All/leap-sdk/releases/download/v0.11.0-SNAPSHOT/LeapSDK.xcframework.zip",
+      checksum: "f837346f81c73ac9f72e5cb115a9b4087a9155ae743cdc365b702361414343ac"
     ),
     .testTarget(
       name: "AppleLocalAILEAPTests",

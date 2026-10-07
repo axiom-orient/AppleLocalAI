@@ -119,7 +119,6 @@
 			buildPhases = (
 				792725BB36A61EC2C6D69943 /* Sources */,
 				E89DFBEE93433F4C91C4EFED /* Frameworks */,
-				8976C73CABF7862EEB6C6044 /* Sign embedded LEAP libraries */,
 			);
 			buildRules = (
 			);
@@ -171,28 +170,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		8976C73CABF7862EEB6C6044 /* Sign embedded LEAP libraries */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Sign embedded LEAP libraries";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\nset -eu\n\n# LeapSDK ships a framework with private inference-engine dylibs nested inside\n# it. Xcode signs the outer framework, but iOS requires the nested code to be\n# signed with the app identity first.\n[ \"${CODE_SIGNING_ALLOWED:-NO}\" = \"YES\" ] || exit 0\n[ -n \"${EXPANDED_CODE_SIGN_IDENTITY:-}\" ] || exit 0\n\nFRAMEWORK=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LeapSDK.framework\"\n[ -d \"$FRAMEWORK\" ] || exit 0\n\nNESTED=\"${FRAMEWORK}/Frameworks\"\nif [ -d \"$NESTED\" ]; then\n  find \"$NESTED\" -type f -name \"*.dylib\" -print0 |\n    while IFS= read -r -d '' dylib; do\n      codesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --timestamp=none \"$dylib\"\n    done\nfi\n\ncodesign --force --sign \"$EXPANDED_CODE_SIGN_IDENTITY\" --timestamp=none \"$FRAMEWORK\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0C971EE894D47F0A240655C1 /* Sources */ = {

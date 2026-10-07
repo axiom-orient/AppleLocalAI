@@ -6,4 +6,4 @@ Xcode 27·macOS 27과 실제 model resource 권한이 필요하다. 이 패키�
 
 System 모델은 readiness/locale, PCC는 명시적 허용·availability·quota·entitlement를 확인한다. MLX/LiteRT는 자산 구조와 선택 backend의 실제 실행을 확인한다. SwiftPM 테스트 성공은 packaged UI나 iOS device 동작의 증거가 아니다.
 
-실행 결과: [root VERIFICATION](../../../docs/VERIFICATION.md). 남은 qualification: [PLAN](PLAN.md).
+실행 결과: [root VERIFICATION](../../../docs/VERIFICATION.md).

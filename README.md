@@ -6,12 +6,9 @@ Apple이 모델 실행, 대화 기록, 도구 호출과 사용량을 소유하�
 | 사용할 경로 | 환경 | 패키지 |
 |---|---|---|
 | 기본 Apple 시스템 모델 SDK | iOS/macOS 27+, Xcode 27, Swift 6.4 | 저장소 루트의 `AppleLocalAI` |
-| Apple 시스템 모델 전용 factory | iOS/macOS 26+, Swift 6.2+ | [`Compatibility/AppleLocalAISystem`](Compatibility/AppleLocalAISystem/README.md) |
 | 선택형 로컬 모델 | iOS/macOS 27+ | [`Backends`](docs/PLATFORM_INTEGRATION.md) |
 | macOS 앱·Provider·Console | macOS 27+ | [`Platforms/macOS`](Platforms/macOS/README.md) |
 
-**iOS 26.5 Simulator + macOS 27의 실제 시스템 모델 추론은 실패합니다.**
-iOS 26 지원 실기기의 추론은 아직 검증하지 못했습니다.
 iOS 27 샘플은 `.preserveTranscript` 정책으로 검증했으며 SDK 기본 `.revertTranscript`의
 Simulator 취소·재사용에는 알려진 native 크래시가 있습니다.
 현재 결과와 검증 범위는 [`VERIFICATION`](docs/VERIFICATION.md)에 있습니다.
@@ -20,8 +17,6 @@ Simulator 취소·재사용에는 알려진 native 크래시가 있습니다.
 
 Xcode의 Package Dependencies에 `https://github.com/axiom-orient/AppleLocalAI`를 추가하고
 `AppleLocalAI` product를 선택합니다. 기본 패키지는 OS 27을 요구하며 외부 패키지 의존성이 없습니다.
-OS 26 앱은 저장소를 내려받아 `Compatibility/AppleLocalAISystem`을 local package로 추가합니다.
-기본 SDK의 배포 최소 버전을 낮춰 OS 26 factory를 대신 사용하지 않습니다.
 
 ## 기본 사용
 
@@ -52,19 +47,19 @@ Apple Intelligence 지원기기, 설정 활성화, 모델 다운로드 완료가
 
 ## 샘플과 검증
 
-- OS 26: [`Examples/SystemModel`](Examples/SystemModel/README.md)
-- OS 27: [`Examples/SystemModel27`](Examples/SystemModel27/README.md)
+- 시스템 모델: [`Examples/SystemModel27`](Examples/SystemModel27/README.md)
 - 선택형 온디맨드 모델: [`Examples/iOSOnDemand`](Examples/iOSOnDemand/README.md)
 - 모듈·상태·I/O 경계: [`ARCHITECTURE`](docs/ARCHITECTURE.md)
 
 ```sh
 swift test
-swift test --package-path Compatibility/AppleLocalAISystem
 scripts/check-architecture.sh
 ```
 
 실제 모델 검증은 [`VERIFICATION`](docs/VERIFICATION.md)의 opt-in 명령을 사용합니다.
 비활성화·skip·unavailable 결과를 추론 PASS로 표시하지 않습니다.
+
+현재 외부 라이브러리 버전은 [의존성 목록](docs/ARCHITECTURE.md#dependency-versions-2026-10-07)에 있습니다.
 
 ## 라이선스
 

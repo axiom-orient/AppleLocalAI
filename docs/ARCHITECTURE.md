@@ -57,51 +57,21 @@ prompt/tool round-trip 보존을 한 구현에 둔다. 실제 transcript는 수�
 | `AppleLocalAI` | root | public profile/request/session facade, native profile projection, one active generation operation | second transcript, model files, HTTP transport |
 | `AppleLocalAILocalModels` | Backends | Core AI·MLX·LiteRT asset admission과 native factories | host routing, transcript, UI, fallback |
 | `AppleLocalAILEAP` | Backends | verified artifact lifecycle, LEAP text bridge, AVFAudio sidecar | Foundation transcript authority, microphone policy, fallback |
-| `AppleLocalAISystem` | Compatibility/AppleLocalAISystem | live native availability preflight, native system-session construction, exact unavailable reason | session/history/usage/Task state, model files, provider routing |
 
-## OS version boundary
+## OS boundary
 
-The root SDK, Backends and Mac hosts remain OS 27 compositions. The optional OS 26
-system-model package has no package dependencies and no import edge in either direction
-with the default graph. It accepts Apple's concrete `SystemLanguageModel` and returns
-Apple's native `LanguageModelSession` through the OS 26 initializer. It does not project
-OS 27 `LanguageModel`, dynamic profiles, executor channels or capability metadata into
-a lower OS contract.
+모든 패키지는 iOS/macOS 27 이상을 기준으로 합니다. Root SDK는 외부 package 의존성이
+없으며 선택 backend와 Mac host가 root를 소비합니다. 이전 시스템 factory와 하위 OS
+샘플·SDK override 실험 경로는 제거했습니다.
 
-Each caller owns the returned native session and its UI operation Task. Reuse happens
-after the preceding operation settles and native `isResponding` is false. The compatibility
-factory retains no model or readiness snapshot. Availability is checked at admission;
-it can change afterward, so native generation errors still reach the caller.
+`Examples/SystemModel27`은 root SDK와 `SystemLanguageModel.default`만 사용합니다.
+온디맨드 샘플은 root SDK와 독립 LEAP product를 명시적으로 선택합니다.
+샘플은 `.preserveTranscript`를 사용하며 SDK 기본 `.revertTranscript`는 유지합니다.
 
-`Examples/SystemModel` is the OS 26 consumer and consumes only this leaf. Unavailable admission is recorded as
-`UNAVAILABLE`. Its `INFERENCE_PASS` requires actual response, streaming, cancellation,
-native settlement, same-session reuse and canonical transcript checks. The default
-`Examples/SystemModel27` is the separate OS 27 consumer, using only root
-`AppleLocalAISession` and `SystemLanguageModel.default`. The 27 on-demand sample
-continues to use `AppleLocalAISession` and its explicit LEAP adapter.
-These paths do not share a mutable transcript or swap providers implicitly.
-The OS 27 sample explicitly selects native `.preserveTranscript`, retaining
-cancelled turns. The SDK default remains `.revertTranscript`; an observed iOS
-Simulator rollback crash is not hidden by automatic policy substitution.
-
-The OS 26 sample owns Simulator-only diagnostic metadata. It reads
-the runtime version through `ProcessInfo` and the host version through Darwin's
-read-only `kern.osproductversion`. A host/runtime difference is displayed and
-recorded, without overriding native availability or blocking inference. Both
-consumers admit through native availability and preserve actual generation errors.
-Supplemental context-size metadata does not veto native system-model requests.
-The SDK factory does not
-acquire Simulator, UI, kernel-query or fallback responsibilities.
-
-`scripts/check-architecture.sh` locks the OS minima and checks default/compatibility
-dependency edges, forbidden runtime state and source imports. It is a static regression
-guard; native compilation and inference remain separate evidence.
-`scripts/verify-system-model.py` selects the consumer by exact Simulator runtime
-major, records the selected Xcode/SDK/host, and uses separate build/result directories.
-Only a passed, explicitly enabled native lifecycle test yields `INFERENCE_PASS`;
-build success, missing tests and skips do not qualify a model.
-The runner claims a new external directory exclusively and fingerprints the selected
-consumer's actual source and project configuration. It never overwrites prior evidence.
+`scripts/check-architecture.sh`는 package minimum과 source dependency 경계를 검사합니다.
+`scripts/verify-system-model.py`는 하나의 system consumer만 실행합니다. 새 외부 output
+디렉터리에 환경·선택 소스·실제 native 테스트 결과를 기록하며, build·skip·unavailable을
+추론 성공으로 바꾸지 않습니다.
 
 ## macOS module ownership
 
@@ -131,7 +101,7 @@ capability는 하나의 조회 경로를 UI·admission·도구 구성에서 공�
 이 책임 경계는 변경되는 표현과 실행 세부를 해당 소유자 안에 두는
 [Parnas의 모듈 분해 기준](https://prl.khoury.northeastern.edu/img/p-tr-1971.pdf)을 적용한 것이다.
 Apple 세션·profile 계약은 [공식 동적 세션 문서](https://developer.apple.com/documentation/foundationmodels/composing-dynamic-sessions-with-instructions-and-profiles)를,
-원격 모델의 transport 경계는 고정 revision의 [Apple Utilities 구현](https://github.com/apple/foundation-models-utilities/blob/2aa12937e30d310687f40fc470ea35495816c9a4/Sources/FoundationModelsUtilities/LanguageModels/ChatCompletionsLanguageModel.swift)을 따른다.
+원격 모델의 transport 경계는 고정 revision의 [Apple Utilities 구현](https://github.com/apple/foundation-models-utilities/blob/cc3820def1fe016bc6cd49d958cd2f2a29be76a8/Sources/FoundationModelsUtilities/LanguageModels/ChatCompletionsLanguageModel.swift)을 따른다.
 
 ## State and lifecycle invariants
 
@@ -176,6 +146,32 @@ LiteRT는 공식 `LiteRTLM` core runtime 위에 repository-owned Foundation Mode
 engine을 복제하지 않는다. 지원하지 않는 audio/video·schema·sampling 의미를 임의로
 변환하지 않는다. 파생 소스의 attribution과 Apache license는 root `NOTICE`와 `LICENSES`에
 보존하며, SDK/upstream 변경 시 native API·실제 backend 지원을 다시 확인한다.
+
+## Dependency versions (2026-10-07)
+
+`Backends`와 macOS의 공통 의존성은 두 `Package.resolved`에서 같은 revision으로
+해석된다. 기본 root SDK에는 외부 의존성이 없다.
+
+| Dependency | Selected version | Upstream |
+|---|---|---|
+| LiteRT-LM | 0.18.0 | [release](https://github.com/google-ai-edge/LiteRT-LM/releases/tag/v0.18.0) |
+| MLX Swift / LM | 0.32.3 / 3.32.3 | [MLX](https://github.com/ml-explore/mlx-swift/releases/tag/0.32.3), [LM](https://github.com/ml-explore/mlx-swift-lm/releases/tag/3.32.3) |
+| Core AI | 1.0.0 | [stable tag](https://github.com/apple/coreai-models/tree/1.0.0) |
+| Swift Transformers | 1.3.4 (unchanged) | [release](https://github.com/huggingface/swift-transformers/releases/tag/1.3.4) |
+| Swift NIO | 2.104.0 | [release](https://github.com/apple/swift-nio/releases/tag/2.104.0) |
+| Foundation Models Utilities | 1.1.0-beta1, revision `cc3820def1fe016bc6cd49d958cd2f2a29be76a8` | [tag](https://github.com/apple/foundation-models-utilities/tree/1.1.0-beta1) |
+| LEAP | 0.11.0-SNAPSHOT (prerelease) | [release](https://github.com/Liquid4All/leap-sdk/releases/tag/v0.11.0-SNAPSHOT) |
+
+Utilities의 새 revision은 문서만 바뀌었으며, 정식 stable release는 없다.
+LEAP는 upstream deprecated SDK를 명시적으로 선택하는 adapter다. 새 배포의
+`LeapSDK`와 `inference_engine`을 독립 binary target으로 포함하며, 각 ZIP의 SHA-256을
+두 manifest에서 동일하게 고정한다. 이전 nested-dylib 서명 스크립트는 제거했다.
+
+LiteRT 0.18의 `ModelInfo.llm`만 대화 모델 metadata로 인정한다. Embedding model은
+LLM capability로 승격하지 않는다. HTTP output cap의 terminal cause를 추정하지 않는
+기존 제한은 유지한다. Core AI 1.0은 metadata가 실제 asset 이름을 선언해야 하며,
+`.aimodel` 선언을 `.aimodelc`로 임의 치환하지 않는다. Embedded tokenizer와 bundle
+내부 경로만 허용하는 admission 계약도 유지한다.
 
 ## Integration constraints
 

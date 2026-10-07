@@ -13,7 +13,7 @@ LiteRT-LM Apple Foundation Models adapter and related Swift support in:
 The compatibility implementation descends from Google LLC's LiteRT-LM project
 (https://github.com/google-ai-edge/LiteRT-LM). The source transfer records commit
 091d17598f5107df4e9543eb3b46b4f8d35264bc as the copied-source baseline; this
-repository currently resolves the LiteRT-LM runtime dependency at release v0.17.1.
+repository currently resolves the LiteRT-LM runtime dependency at release v0.18.0.
 The derived files retain their upstream copyright and Apache-2.0 headers and have
 subsequent AppleLocalAI changes for fail-closed transcript/schema handling,
 cancellation, resource ownership, and token-usage semantics.

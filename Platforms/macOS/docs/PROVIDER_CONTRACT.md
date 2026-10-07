@@ -1,6 +1,6 @@
 # Provider 계약
 
-입출력 의미·외부 consumer 수용 기준을 소유한다. 형식 원본은 `Sources/AppleLocalAIWire`, 실행 연결은 `Sources/AppleLocalAIProvider`다. 실행 증거는 [root VERIFICATION](../../../docs/VERIFICATION.md), 남은 qualification 조건은 [PLAN](PLAN.md)에 둔다. 이 계약의 모든 optional 조합이 현재 실모델에서 검증됐다는 뜻은 아니다.
+입출력 의미·외부 consumer 수용 기준을 소유한다. 형식 원본은 `Sources/AppleLocalAIWire`, 실행 연결은 `Sources/AppleLocalAIProvider`다. 실행 증거는 [root VERIFICATION](../../../docs/VERIFICATION.md)에 기록한다. 이 계약의 모든 optional 조합이 현재 실모델에서 검증됐다는 뜻은 아니다.
 
 ## 입력과 인증
 
@@ -66,7 +66,7 @@ SSE는 native 누적 snapshot의 UTF-8 prefix에서 새 부분만 전송하며 g
 
 입력/출력 token은 native 측정치만 사용한다. `cached_input ≤ input`, `reasoning ≤ output`, overflow 금지가 불변식이다. Chat/Responses는 미측정 usage를 생략하고, Messages는 측정 usage가 없으면 성공 응답을 만들지 않는다. LiteRT처럼 사전에 미측정임을 아는 경로는 load 전에 차단하고, 다른 경로에서 실행 후 미측정이 드러나면 명시적 실패다. LiteRT channel의 character/chunk 값을 token으로 추정하지 않는다.
 
-LiteRT-LM 0.17.1은 output-token cap을 runtime에 전달할 수 있지만 public Swift stream에서 **cap 종료와 natural stop의 terminal cause를 구분해 노출하지 않는다**. 따라서 Provider의 Chat/Responses에서 `max_tokens`/`max_completion_tokens`/`max_output_tokens`가 지정된 LiteRT 요청은 model load 전에 unsupported로 거절한다. 정확한 `finish_reason`/Responses status를 추정해 성공시키지 않는다. App/library의 native cap 전달 계약은 이 HTTP 제한과 별개다.
+LiteRT-LM 0.18.0은 output-token cap을 runtime에 전달할 수 있지만 public Swift stream에서 **cap 종료와 natural stop의 terminal cause를 구분해 노출하지 않는다**. 따라서 Provider의 Chat/Responses에서 `max_tokens`/`max_completion_tokens`/`max_output_tokens`가 지정된 LiteRT 요청은 model load 전에 unsupported로 거절한다. 정확한 `finish_reason`/Responses status를 추정해 성공시키지 않는다. App/library의 native cap 전달 계약은 이 HTTP 제한과 별개다.
 
 ## 오류와 한도
 
@@ -100,7 +100,7 @@ text output은 `ProviderConfiguration.maximumOutputBytes`, tool call 수와 aggr
 
 ## 검증 범위의 분리
 
-portable Wire 검사는 JSON/history/request shape/SSE/config/limits를 확인한다. native schema·tool callback·continuation과 실제 model quality/권한은 별도 검사한다. 실제 실행 결과는 [root VERIFICATION](../../../docs/VERIFICATION.md), 남은 gate는 [PLAN](PLAN.md)에만 기록한다. 실제 외부 client의 전체 업무 성공은 protocol probe와 별도 E2E다.
+portable Wire 검사는 JSON/history/request shape/SSE/config/limits를 확인한다. native schema·tool callback·continuation과 실제 model quality/권한은 별도 검사한다. 실제 실행 결과는 [root VERIFICATION](../../../docs/VERIFICATION.md)에 기록한다. 실제 외부 client의 전체 업무 성공은 protocol probe와 별도 E2E다.
 
 ## 변경된 경계의 수용 조건
 
